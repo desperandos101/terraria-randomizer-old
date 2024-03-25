@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "0a6LtOOCJN9b2zV+zQ6+eNdUR1VnstqvTlDWn/n7rIe1lZ4pb1Na5ROA4KDYN/oH1j1jPfZhdD+vRB9XzrpuUA==",
+  "dgSpecHash": "W6FJVLaNzlYbJm/TVgVPKxEfyU2NR8WNGp/wAe6U/L1Sv0IRg0vM7i3GLwJPzZrAaVb9pDBXE60ZPvLTvYOmOA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
+  "projectFilePath": "c:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Vasili\\.nuget\\packages\\tmodloader.codeassist\\0.1.5\\tmodloader.codeassist.0.1.5.nupkg.sha512"
+    "C:\\Users\\despe\\.nuget\\packages\\tmodloader.codeassist\\0.1.5\\tmodloader.codeassist.0.1.5.nupkg.sha512"
   ],
   "logs": []
 }
