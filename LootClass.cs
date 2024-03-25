@@ -10,7 +10,7 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using static System.Random;
-namespace LootClass { //LOOK MA IM PUSHED
+namespace LootClass { //LOOK MA IM PUSHED, AND THIRD COMMITTED
     public static class ItemReference {
         private static Random rnd = new Random();
 
