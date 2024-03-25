@@ -41,7 +41,9 @@ namespace ItemSwapper
 			mySet.AddChestPool(new int[] {17}, new int[] {186, 187, 277, 4404, 863});
 			mySet.AddChestPool(new int[] {62, 69}, new int[] {934, 857, 4061, 4062, 4263, 4262, 4056, 4055, 4276});
 
-			mySet.AddNPCPool(new int[] {3}, new int[] {216});
+			mySet.AddNPCPool(new int[] {3}, new int[] {216, 1304});
+			mySet.AddNPCPool(new int[] {24}, new int[] {1323});
+			mySet.AddNPCPool(new int[] {489, 490}, new int[] {3212});
 
 			mySet.Randomize();
 

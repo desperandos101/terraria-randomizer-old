@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ItemSwapper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1d3a5b01e3504d911407a6ecc0b16a8b3ea3d57")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e97958232f0c5c4a9cabd435ae6d611f0efc961")]
 [assembly: System.Reflection.AssemblyProductAttribute("ItemSwapper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ItemSwapper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
