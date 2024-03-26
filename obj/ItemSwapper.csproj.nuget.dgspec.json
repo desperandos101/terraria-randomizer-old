@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {}
+    "c:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {
+    "c:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
+        "projectUniqueName": "c:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
         "projectName": "ItemSwapper",
-        "projectPath": "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
+        "projectPath": "c:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
         "packagesPath": "C:\\Users\\Vasili\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\obj\\",
+        "outputPath": "c:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Vasili\\AppData\\Roaming\\NuGet\\NuGet.Config",
