@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {}
+    "C:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {}
   },
   "projects": {
-    "c:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {
+    "C:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
+        "projectUniqueName": "C:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
         "projectName": "ItemSwapper",
-        "projectPath": "c:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
+        "projectPath": "C:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
         "packagesPath": "C:\\Users\\despe\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\obj\\",
+        "outputPath": "C:\\Users\\despe\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\despe\\AppData\\Roaming\\NuGet\\NuGet.Config"

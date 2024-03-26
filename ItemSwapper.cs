@@ -19,31 +19,23 @@ namespace ItemSwapper
 	public class ChestSpawn : ModSystem
 	{
 		public static LootSet mySet = new LootSet();
-		public override void PostWorldGen()
+		public override void PostWorldGen() //Where all pools are initialized.
 		{
-            /*
-			21, 0: Surface
-			21, 1: Underground
-			21, 10: Ivy
-			21, 11: Ice
-			21, 13: Sky
-			21, 15: Web
-			21, 17: Water
-			467, 10: Desert
+            /*Surface*/mySet.AddChestPool(new int[] { 0 }, new int[] { 280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341 });
+			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 54}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
+			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
+			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
+			/*Sky*/mySet.AddChestPool(new int[] {13}, new int[] {159, 65, 158, 2219});
+			/*Web*/mySet.AddChestPool(new int[] {15}, new int[] {939});
+			/*Water*/mySet.AddChestPool(new int[] {17}, new int[] {186, 187, 277, 4404, 863});
+			/*Desert*/mySet.AddChestPool(new int[] {62, 69}, new int[] {934, 857, 4061, 4062, 4263, 4262, 4056, 4055, 4276});
 
-			*/
-            mySet.AddChestPool(new int[] { 0 }, new int[] { 280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341 });
-			mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 54}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
-			mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
-			mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
-			mySet.AddChestPool(new int[] {13}, new int[] {159, 65, 158, 2219});
-			mySet.AddChestPool(new int[] {15}, new int[] {939});
-			mySet.AddChestPool(new int[] {17}, new int[] {186, 187, 277, 4404, 863});
-			mySet.AddChestPool(new int[] {62, 69}, new int[] {934, 857, 4061, 4062, 4263, 4262, 4056, 4055, 4276});
+			/*Compass*/mySet.AddNPCPool(new int[] {}, new int[] {});
+			/*Obsidian Rose*/mySet.AddNPCPool(new int[] {24}, new int[] {1323});
+			/*Shackle, Zombie Arm*/mySet.AddNPCPool(new int[] {3}, new int[] {216, 1304});
+			/*Shark Tooth Necklace + Money Trough*/mySet.AddNPCPool(new int[] {489, 490}, new int[] {3212, 3213});
+			/*Slime Staff*/mySet.AddNPCPool(new int[] {-3, 1, -8, -7, -9, -6, 147, 537, -10, 184, 204, 16, -5, -4, 535, 302, 333, 334, 335, 336, 141, 121, 138, 658, 659, 660}, new int[] {1309});
 
-			mySet.AddNPCPool(new int[] {3}, new int[] {216, 1304});
-			mySet.AddNPCPool(new int[] {24}, new int[] {1323});
-			mySet.AddNPCPool(new int[] {489, 490}, new int[] {3212});
 
 			mySet.Randomize();
 
@@ -102,7 +94,6 @@ namespace ItemSwapper
 					Console.WriteLine($"INCOMPATIBLE CHEST {chestKey}: {chest.item[0].AffixName()}");
 				}
 			}
-			Console.WriteLine(mySet.npcSet.Keys.ToList()[0]);
 
         }
         public override void SaveWorldData(TagCompound tag)
@@ -122,7 +113,7 @@ namespace ItemSwapper
     {
         LootSet mySet = ChestSpawn.mySet;
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-		if (mySet.npcSet.Keys.Contains(npcTypeFormatted))
+		if (mySet.GetNPCPools(npcTypeFormatted) != null)
 		{
 			npcLoot.RemoveWhere(rule => rule is DropBasedOnExpertMode drop && drop.ruleForNormalMode is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
 		}
@@ -131,10 +122,9 @@ namespace ItemSwapper
     {
         LootSet mySet = ChestSpawn.mySet;
         int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-        if (mySet.npcSet.Keys.Contains(npcTypeFormatted))
+		foreach (NPCLootPool pool in mySet.GetNPCPools(npcTypeFormatted))
 		{
-			ChestPool itemPool = mySet.npcSet[npcTypeFormatted];
-            int newItem = itemPool.GetNext();
+            int newItem = pool.GetNext();
             Item.NewItem(npc.GetSource_Death(), npc.Center, newItem, 1, true);
 		}
     }
