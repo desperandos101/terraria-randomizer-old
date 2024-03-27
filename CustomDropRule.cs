@@ -25,11 +25,12 @@ namespace CustomDropRule {
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             int npcIDformatted = ItemReference.IDNPC(info.npc.type);
             LootSet mySet = ChestSpawn.mySet;
-            int[] options = [];
+            HashSet<int> options = new HashSet<int>();
             foreach (LootPool pool in mySet.GetNPCPools(npcIDformatted)) {
-                options.Union(pool.randomSet).ToArray();
+                options.Union(pool.randomSet);
             }
-            int itemId = options[info.rng.Next(0, options.Length)];
+            int[] optionsArray = options.ToArray(); //vomits inside of own mouth
+            int itemId = optionsArray[info.rng.Next(0, optionsArray.Length)];
             CommonCode.DropItem(info, itemId, 1);
             ItemDropAttemptResult result = default(ItemDropAttemptResult);
             result.State = ItemDropAttemptResultState.Success;

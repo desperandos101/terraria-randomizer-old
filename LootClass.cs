@@ -100,9 +100,9 @@ namespace LootClass { //LOOK MABABA
         public static readonly Func<TagCompound, LootSet> DESERIALIZER = Load;
 
         static Random rnd = new();
-        public List<int> totalPool = [];
-        public Dictionary<int, LootPool> chestSet = [];
-        public HashSet<NPCLootPool> npcSet = [];
+        public List<int> totalPool = new List<int>();
+        public Dictionary<int, LootPool> chestSet = new Dictionary<int, LootPool>();
+        public HashSet<NPCLootPool> npcSet = new HashSet<NPCLootPool>();
 
         public TagCompound SerializeData()
         {
@@ -111,7 +111,7 @@ namespace LootClass { //LOOK MABABA
                 ["totalPool"] = totalPool,
                 ["chestSetKeys"] = chestSet.Keys.ToList(),
                 ["chestSetValues"] = chestSet.Values.ToList(),
-                ["npcSet"] = npcSet.ToArray(),
+                ["npcSet"] = npcSet.ToList(),
             };
         }
 
@@ -125,7 +125,7 @@ namespace LootClass { //LOOK MABABA
             {
                 lootset.chestSet[chestKeys[i]] = chestValues[i];
             }
-            lootset.npcSet = tag.Get<NPCLootPool[]>("npcSet").ToHashSet();
+            lootset.npcSet = tag.Get<List<NPCLootPool>>("npcSet").ToHashSet();
             return lootset;
         }
 
@@ -141,7 +141,13 @@ namespace LootClass { //LOOK MABABA
             npcSet.Add(newPool);
             totalPool.AddRange(itemList);
         }
-        public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
+        public NPCLootPool[] GetNPCPools(int npcID) {
+            var allPools = (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
+            if (allPools == null) {
+                return null;
+            }
+            return allPools;
+        } 
         public void Randomize() {
             List<int> totalPoolCopy = new(totalPool);
             HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
@@ -172,7 +178,7 @@ namespace LootClass { //LOOK MABABA
                 counter = (counter + 1)%randomSet.Length;
                 return item;
             }
-            public TagCompound SerializeData()
+            public virtual TagCompound SerializeData()
             {
                 return new TagCompound
                 {
@@ -197,7 +203,7 @@ namespace LootClass { //LOOK MABABA
         public NPCLootPool(int[] itemList, int[] npcIDset) : base(itemList) {
             registeredIDs = npcIDset;
         }
-        public new TagCompound SerializeData()
+        public override TagCompound SerializeData()
             {
                 return new TagCompound
                 {
@@ -210,7 +216,6 @@ namespace LootClass { //LOOK MABABA
 
             public static new NPCLootPool Load(TagCompound tag)
             {
-                var crazyiwascrazyonce = tag.GetIntArray("registeredIDs");
                 var npcPool = new NPCLootPool(tag.GetIntArray("initialSet"), tag.GetIntArray("registeredIDs"));
                 npcPool.counter = tag.GetInt("counter");
                 npcPool.randomSet = tag.GetIntArray("randomSet");

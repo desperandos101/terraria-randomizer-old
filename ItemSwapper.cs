@@ -20,8 +20,8 @@ namespace ItemSwapper
 	public class ChestSpawn : ModSystem
 	{
 		public static LootSet mySet = new LootSet();
-		public override void PostWorldGen() //Where all pools are initialized.
-		{
+        public override void OnModLoad() //Where all pools are initialized.
+        {
             /*Surface*/mySet.AddChestPool(new int[] { 0 }, new int[] { 280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341 });
 			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 54}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
 			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
@@ -60,8 +60,9 @@ namespace ItemSwapper
 
 			/*Shadow Armor*/mySet.AddNPCPool(new int[] {956}, new int[] {6});
 			/*Tentacle Spike Corr.*/mySet.AddNPCPool(new int[] {956, 7}, new int[] {5094});
-
-
+        }
+        public override void PostWorldGen() 
+		{
 			mySet.Randomize();
 
 			var chestList = from chest in Main.chest
@@ -138,7 +139,8 @@ namespace ItemSwapper
     {
         LootSet mySet = ChestSpawn.mySet;
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-		if (mySet.GetNPCPools(npcTypeFormatted) != null)
+		var test = mySet.GetNPCPools(npcTypeFormatted);
+		if (test != null)
 		{
 			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
 			npcLoot.Add(new LootsetDropRule(npcTypeFormatted));
