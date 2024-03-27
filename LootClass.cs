@@ -7,16 +7,23 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks.Sources;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using static System.Random;
-namespace LootClass { //LOOK MA IM PUSHED
+namespace LootClass { //LOOK MABABA
     public static class ItemReference {
         private static Random rnd = new Random();
 
                 private static readonly Dictionary<int, int[]> ItemSetDict = new Dictionary<int, int[]> {
+            {6, new int[] {-11, -12}},
             {930, new int[] {931}},
-            {848, new int[] {866}}
+            {848, new int[] {866}},
+            {960, new int[] {961, 962}},
+            {954, new int[] {81, 77}},
+            {955, new int[] {83, 79}},
+            {956, new int[] {957, 958}},
+            {410, new int[] {411}}
         };
 
         private static readonly Dictionary<int, (int, int)> ItemQuantDict = new Dictionary<int, (int, int)> {
@@ -64,12 +71,23 @@ namespace LootClass { //LOOK MA IM PUSHED
             }
             return ChestID;
         }
-        private static readonly (int, HashSet<int>)[] NPCIDSets = {
-            (3, new HashSet<int> {132, 186, 187, 188, 189, 200, 223, 161, 254, 255, 52, 53, 536, 319, 320, 321, 332, 436, 431, 432, 433, 434, 435, 331, 430, 590})
+        private static readonly (int, int[])[] NPCIDSets = {
+            (3, new int[] {132, 186, 187, 188, 189, 200, 223, 161, 254, 255, 52, 53, 536, 319, 320, 321, 332, 436, 431, 432, 433, 434, 435, 331, 430, 590}),
+            (1, new int[] {302, 333, 334, 335, 336}),
+            (494, new int[] {495}),
+            (496, new int[] {497}),
+            (498, new int[] {499, 500, 501, 502, 503, 504, 505, 506}),
+            (42, new int[] {-16, -17, 231, -56, -57, 232, -58, -59, 233, -60, -61, 234, -62, -63, 235, -64, -65}),
+            (176, new int[] {-18, -19, -20, -21}),
+            (21, new int[] {449, -46, -47, 201, -48, -49, 202, -50, -51, 203, -52, -53, 322, 323, 324, 635}),
+            (3187, new int[] {3188, 3189}),
+            (580, new int[] {508}),
+            (581, new int[] {509}),
+            (195, new int[] {196}),
             };
         
         public static int IDNPC(int id) {
-            foreach((int, HashSet<int>) idSet in NPCIDSets) {
+            foreach((int, int[]) idSet in NPCIDSets) {
                 if(idSet.Item2.Contains(id)) {
                     return idSet.Item1;
                 }
@@ -81,10 +99,10 @@ namespace LootClass { //LOOK MA IM PUSHED
     {
         public static readonly Func<TagCompound, LootSet> DESERIALIZER = Load;
 
-        static Random rnd = new Random();
-        public List<int> totalPool = new List<int>();
-        public Dictionary<int, ChestPool> chestSet = new Dictionary<int, ChestPool>();
-        public Dictionary<int, ChestPool> npcSet = new Dictionary<int, ChestPool>();
+        static Random rnd = new();
+        public List<int> totalPool = [];
+        public Dictionary<int, LootPool> chestSet = [];
+        public HashSet<NPCLootPool> npcSet = [];
 
         public TagCompound SerializeData()
         {
@@ -93,8 +111,7 @@ namespace LootClass { //LOOK MA IM PUSHED
                 ["totalPool"] = totalPool,
                 ["chestSetKeys"] = chestSet.Keys.ToList(),
                 ["chestSetValues"] = chestSet.Values.ToList(),
-                ["npcSetKeys"] = npcSet.Keys.ToList(),
-                ["npcSetValues"] = npcSet.Values.ToList(),
+                ["npcSet"] = npcSet.ToArray(),
             };
         }
 
@@ -103,41 +120,35 @@ namespace LootClass { //LOOK MA IM PUSHED
             var lootset = new LootSet();
             lootset.totalPool = tag.Get<List<int>>("totalPool");
             List<int> chestKeys = tag.Get<List<int>>("chestSetKeys");
-            List<ChestPool> chestValues = tag.Get<List<ChestPool>>("chestSetValues");
+            List<LootPool> chestValues = tag.Get<List<LootPool>>("chestSetValues");
             for (int i = 0; i < chestKeys.Count; i++)
             {
                 lootset.chestSet[chestKeys[i]] = chestValues[i];
             }
-            List<int> npcKeys = tag.Get<List<int>>("npcSetKeys");
-            List<ChestPool> npcValues = tag.Get<List<ChestPool>>("npcSetValues");
-            for (int i = 0; i < npcKeys.Count; i++)
-            {
-                lootset.npcSet[npcKeys[i]] = npcValues[i];
-            }
+            lootset.npcSet = tag.Get<NPCLootPool[]>("npcSet").ToHashSet();
             return lootset;
         }
 
         public void AddChestPool(int[] chestIDs, int[] itemList) {
-            ChestPool newPool = new(itemList);
+            LootPool newPool = new(itemList);
             foreach (int chestID in chestIDs) {
                 chestSet[chestID] = newPool;
             }
             totalPool.AddRange(itemList);
         }
         public void AddNPCPool(int[] npcIDs, int[] itemList) {
-            ChestPool newPool = new(itemList);
-            foreach (int npcID in npcIDs) {
-                npcSet[npcID] = newPool;
-            }
+            NPCLootPool newPool = new(itemList, npcIDs);
+            npcSet.Add(newPool);
             totalPool.AddRange(itemList);
         }
+        public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
         public void Randomize() {
             List<int> totalPoolCopy = new(totalPool);
-            HashSet<ChestPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
-            HashSet<ChestPool> npcHashSet = npcSet.Values.Distinct().ToHashSet();
-            HashSet<ChestPool> allPools = chestHashSet.Union(npcHashSet).ToHashSet();
+            HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
+            HashSet<LootPool> npcHashSet = new(npcSet);
+            HashSet<LootPool> allPools = chestHashSet.Union(npcHashSet).ToHashSet();
 
-            foreach (ChestPool pool in allPools) {
+            foreach (LootPool pool in allPools) {
                 int[] itemList = pool.randomSet;
                 for (int i = 0; i < itemList.Length; i++) {
                     int randItem = totalPoolCopy[rnd.Next(totalPoolCopy.Count)];
@@ -147,12 +158,12 @@ namespace LootClass { //LOOK MA IM PUSHED
             }
         }
     }
-    public class ChestPool : TagSerializable {
-            public static readonly Func<TagCompound, ChestPool> DESERIALIZER = Load;
+    public class LootPool : TagSerializable {
+            public static readonly Func<TagCompound, LootPool> DESERIALIZER = Load;
             public int counter;
             public readonly int[] initialSet;
             public int[] randomSet;
-            public ChestPool(int[] itemList) {
+            public LootPool(int[] itemList) {
                 initialSet = itemList;
                 randomSet = new int[itemList.Length];
             }
@@ -171,12 +182,39 @@ namespace LootClass { //LOOK MA IM PUSHED
                 };
             }
 
-            public static ChestPool Load(TagCompound tag)
+            public static LootPool Load(TagCompound tag)
             {
-                var chestPool = new ChestPool(tag.Get<int[]>("initialSet"));
+                var chestPool = new LootPool(tag.Get<int[]>("initialSet"));
                 chestPool.counter = tag.GetInt("counter");
                 chestPool.randomSet = tag.Get<int[]>("randomSet");
                 return chestPool;
             }
     }
-}
+    public class NPCLootPool : LootPool { //We make a separate class for NPCS because there can be overlaps.
+    //For example, all zombies drop shackles, and all slimes drop slime staffs. Slimed Zombies can drop both.
+        public static readonly new Func<TagCompound, NPCLootPool> DESERIALIZER = Load;
+        public int[] registeredIDs;
+        public NPCLootPool(int[] itemList, int[] npcIDset) : base(itemList) {
+            registeredIDs = npcIDset;
+        }
+        public new TagCompound SerializeData()
+            {
+                return new TagCompound
+                {
+                    ["counter"] = counter,
+                    ["initialSet"] = initialSet,
+                    ["randomSet"] = randomSet,
+                    ["registeredIDs"] = registeredIDs,
+                };
+            }
+
+            public static new NPCLootPool Load(TagCompound tag)
+            {
+                var crazyiwascrazyonce = tag.GetIntArray("registeredIDs");
+                var npcPool = new NPCLootPool(tag.GetIntArray("initialSet"), tag.GetIntArray("registeredIDs"));
+                npcPool.counter = tag.GetInt("counter");
+                npcPool.randomSet = tag.GetIntArray("randomSet");
+                return npcPool;
+            }
+        }
+    }
