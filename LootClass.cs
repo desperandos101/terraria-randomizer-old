@@ -78,7 +78,7 @@ namespace LootClass { //LOOK MABABA
             HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
             HashSet<LootPool> npcHashSet = new(npcSet);
             HashSet<LootPool> shopHashSet = shopSet.Values.ToHashSet();
-            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER([chestHashSet, npcHashSet, shopHashSet]);
+            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet});
 
             foreach (LootPool pool in allPools) {
                 int[] itemList = pool.randomSet;

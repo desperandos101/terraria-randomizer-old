@@ -40,16 +40,45 @@ namespace ItemSwapper {
                 }
             return 1;
         }
-
-        public static int[] GetItemSet(int itemID)
+        private static readonly HashSet<int> Sellables = new HashSet<int> {
+            931, 97
+        };
+        public static int[] GetItemSet(int itemID, bool stripShop = false)
         {
-            int[] ItemSetsNew = [itemID];
+            int[] ItemSetsNew = new int[] {itemID};
             
             if (ItemSetDict.ContainsKey(itemID)) {
                 int[] ItemSets = ItemSetDict[itemID];
                 return ItemSetsNew.Concat(ItemSets).ToArray();
             }
+            if(stripShop) {
+                ItemSetsNew = StripSellables(ItemSetsNew);
+            }
             return ItemSetsNew;
+        }
+        public static int[] StripSellables(int[] itemSet) => (from item in itemSet where !Sellables.Contains(item) select item).ToArray();
+        public static Item[] OffsetInventory(int oldSetLength, int newSetLength, Item[] inventory) {
+            if (oldSetLength != newSetLength) {
+                (int, int)[] inventoryTypes = (from item in inventory select (item.type, item.stack)).ToArray();
+                int offset = newSetLength - oldSetLength;
+                for (int i = 0; i < inventory.Length; i++)
+                {
+                    if (i + offset < 0 || i + offset > inventory.Length - 1)
+                    {
+                        continue;
+                    }
+
+                    if (inventory[i + offset].type == 0 && inventoryTypes[i].Item1 == 0)
+                    {
+                        break;
+                    }
+                                
+                    inventory[i + offset].SetDefaults(inventoryTypes[i].Item1, false);
+                    inventory[i + offset].stack = inventoryTypes[i].Item2;
+                }
+            }
+            return inventory;
+					
         }
         private static readonly Dictionary<int, int> ChestDict = new Dictionary<int, int> {
             {21, 0},

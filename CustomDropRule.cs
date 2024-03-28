@@ -26,15 +26,17 @@ namespace CustomDropRule {
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             int npcIDformatted = ItemReference.IDNPC(info.npc.type);
             LootSet mySet = ChestSpawn.mySet;
+
             List<int> options = new List<int>();
             NPCLootPool[] myPools = mySet.GetNPCPools(npcIDformatted);
+            
             foreach (LootPool pool in myPools) {
                 options = options.Concat(pool.randomSet).ToList();
             }
             int itemId = options[info.rng.Next(options.Count)];
             int[] itemSet = ItemReference.GetItemSet(itemId);
             foreach (int id in itemSet) {
-                CommonCode.DropItem(info, itemId, ItemReference.GetQuant(id));
+                CommonCode.DropItem(info, id, ItemReference.GetQuant(id));
             }
             ItemDropAttemptResult result = default(ItemDropAttemptResult);
             result.State = ItemDropAttemptResultState.Success;
