@@ -22,7 +22,7 @@ namespace ItemSwapper
 		public static LootSet mySet = new LootSet();
         public override void OnModLoad() //Where all pools are initialized.
         {
-            /*Surface*/mySet.AddChestPool(new int[] { 0 }, new int[] { 280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341 });
+            /*Surface*/mySet.AddChestPool([0], [280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341]);
 			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 54}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
 			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
 			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
@@ -60,6 +60,10 @@ namespace ItemSwapper
 
 			/*Shadow Armor*/mySet.AddNPCPool(new int[] {956}, new int[] {6});
 			/*Tentacle Spike Corr.*/mySet.AddNPCPool(new int[] {956, 7}, new int[] {5094});
+
+			/*Merchant*/mySet.AddShopPool(17, [1991, 88]);
+
+
         }
         public override void PostWorldGen() 
 		{
@@ -81,21 +85,22 @@ namespace ItemSwapper
 					continue;
 				}
 
-				if (mySet.chestSet.Keys.Contains(chestKey)) {
+				if (mySet.chestSet.Keys.Contains(chestKey) && mySet.chestSet[chestKey].IsEnabled) {
 					int oldItem = chest.item[0].type;
-					int newItem = mySet.chestSet[chestKey].GetNext();
+					//int newItem = mySet.chestSet[chestKey].GetNext();
+					int newItem = 960;
 					Console.WriteLine($"COMPATIBLE CHEST {chestKey}: {chest.item[0].AffixName()}");
 
-					List<int> oldItemSet = ItemReference.GetItemSet(oldItem);
-					List<int> newItemSet = ItemReference.GetItemSet(newItem);
+					int[] oldItemSet = ItemReference.GetItemSet(oldItem);
+					int[] newItemSet = ItemReference.GetItemSet(newItem);
 					int[] chestItemTypes = (from item in chest.item select item.type).ToArray();
 
-					if (oldItemSet.Count != newItemSet.Count) //offset method to properly space out chest items
+					if (oldItemSet.Length != newItemSet.Length) //offset method to properly space out chest items
 					{
-						int offset = newItemSet.Count - oldItemSet.Count;
+						int offset = newItemSet.Length - oldItemSet.Length;
 						for (int i = 0; i < 40; i++)
 						{
-                            if (i + offset < 0 || i + offset > 39)
+                            if (i - offset < 0 || i - offset > 39)
                             {
                                 continue;
                             }
@@ -109,7 +114,7 @@ namespace ItemSwapper
 						}
 					}
 
-					for(int i = 0; i < newItemSet.Count; i++) {
+					for(int i = 0; i < newItemSet.Length; i++) {
 						chest.item[i].SetDefaults(newItemSet[i], false);
 						chest.item[i].stack = ItemReference.GetQuant(newItemSet[i]);
 					}
@@ -139,14 +144,26 @@ namespace ItemSwapper
     {
         LootSet mySet = ChestSpawn.mySet;
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-		var test = mySet.GetNPCPools(npcTypeFormatted);
-		if (test != null)
+		NPCLootPool[] test = mySet.GetNPCPools(npcTypeFormatted);
+		if (test.Length != 0)
 		{
 			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
 			npcLoot.Add(new LootsetDropRule(npcTypeFormatted));
+			Console.WriteLine(npcTypeFormatted);
 		}
     }
-	/*
+    public override void ModifyActiveShop(NPC npc, string shopName, Item[] items)
+    {	
+		LootSet mySet = ChestSpawn.mySet;
+		if (mySet.shopSet.ContainsKey(npc.type) && mySet.shopSet[npc.type].IsEnabled) {
+			LootPool pool = mySet.shopSet[npc.type];
+			Item[] items2 = (from item in items where item != null && pool.initialSet.Contains(item.type) select item).ToArray();
+        	for (int i = 0; i < items2.Length; i++) {
+				items2[i].SetDefaults(pool.randomSet[i]);
+			}
+		}
+    }
+    /*
     public override void OnKill(NPC npc)
     {
         LootSet mySet = ChestSpawn.mySet;

@@ -13,6 +13,7 @@ using LootClass;
 using ItemSwapper;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Security.Cryptography;
 
 namespace CustomDropRule {
     public class LootsetDropRule : IItemDropRule {
@@ -25,13 +26,16 @@ namespace CustomDropRule {
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             int npcIDformatted = ItemReference.IDNPC(info.npc.type);
             LootSet mySet = ChestSpawn.mySet;
-            HashSet<int> options = new HashSet<int>();
-            foreach (LootPool pool in mySet.GetNPCPools(npcIDformatted)) {
-                options.Union(pool.randomSet);
+            List<int> options = new List<int>();
+            NPCLootPool[] myPools = mySet.GetNPCPools(npcIDformatted);
+            foreach (LootPool pool in myPools) {
+                options = options.Concat(pool.randomSet).ToList();
             }
-            int[] optionsArray = options.ToArray(); //vomits inside of own mouth
-            int itemId = optionsArray[info.rng.Next(0, optionsArray.Length)];
-            CommonCode.DropItem(info, itemId, 1);
+            int itemId = options[info.rng.Next(options.Count)];
+            int[] itemSet = ItemReference.GetItemSet(itemId);
+            foreach (int id in itemSet) {
+                CommonCode.DropItem(info, itemId, ItemReference.GetQuant(id));
+            }
             ItemDropAttemptResult result = default(ItemDropAttemptResult);
             result.State = ItemDropAttemptResultState.Success;
             return result;
