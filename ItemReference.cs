@@ -59,20 +59,18 @@ namespace ItemSwapper {
         public static int[] StripSellables(int[] itemSet) => (from item in itemSet where !Sellables.Contains(item) select item).ToArray();
         public static Item[] OffsetInventory(int oldSetLength, int newSetLength, Item[] inventory) {
             if (oldSetLength != newSetLength) {
-                (int, int)[] inventoryTypes = (from item in inventory select (item.type, item.stack)).ToArray();
+                (int, int)[] inventoryTypes = (from item in inventory where item != null select (item.type, item.stack)).ToArray();
                 int offset = newSetLength - oldSetLength;
-                for (int i = 0; i < inventory.Length; i++)
+                for (int i = 0; i < inventoryTypes.Length; i++)
                 {
                     if (i + offset < 0 || i + offset > inventory.Length - 1)
                     {
                         continue;
                     }
-
-                    if (inventory[i + offset].type == 0 && inventoryTypes[i].Item1 == 0)
-                    {
-                        break;
+                    
+                    if (inventory[i + offset] == null) {
+                        inventory[i + offset] = new Item();
                     }
-                                
                     inventory[i + offset].SetDefaults(inventoryTypes[i].Item1, false);
                     inventory[i + offset].stack = inventoryTypes[i].Item2;
                 }

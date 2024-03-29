@@ -22,6 +22,7 @@ namespace LootClass { //LOOK MABABA
         public Dictionary<int, LootPool> chestSet = new Dictionary<int, LootPool>();
         public HashSet<NPCLootPool> npcSet = new HashSet<NPCLootPool>();
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
+        public HashSet<LootPool> fishSet = new HashSet<LootPool>();
         public TagCompound SerializeData()
         {
             return new TagCompound 
@@ -32,6 +33,7 @@ namespace LootClass { //LOOK MABABA
                 ["npcSet"] = npcSet.ToList(),
                 ["shopSetKeys"] = shopSet.Keys.ToList(),
                 ["shopSetValues"] = shopSet.Values.ToList(),
+                ["fishSet"] = fishSet.ToList(),
             };
         }
 
@@ -52,6 +54,7 @@ namespace LootClass { //LOOK MABABA
             {
                 lootset.shopSet[shopKeys[i]] = shopValues[i];
             }
+            lootset.fishSet = tag.Get<List<LootPool>>("fishSet").ToHashSet();
             return lootset;
         }
 
@@ -67,18 +70,32 @@ namespace LootClass { //LOOK MABABA
             npcSet.Add(newPool);
             totalPool.AddRange(itemList);
         }
-        public void AddShopPool(int chestID, int[] itemList) {
+        public void AddShopPool(int npcID, int[] itemList) {
             LootPool newPool = new(itemList);
-            shopSet[chestID] = newPool;
+            shopSet[npcID] = newPool;
             totalPool.AddRange(itemList);
         }
+        public void AddFishPool(int[] itemIDs) {
+            LootPool newPool = new(itemIDs);
+            fishSet.Add(newPool);
+            totalPool.AddRange(itemIDs);
+        }
         public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
+        public LootPool GetFishPool(int itemID) {
+            foreach (LootPool pool in fishSet) {
+                if (pool.initialSet.Contains(itemID)) {
+                    return pool;
+                }
+            }
+            return null;
+        } 
         public void Randomize() {
             List<int> totalPoolCopy = new(totalPool);
             HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
             HashSet<LootPool> npcHashSet = new(npcSet);
             HashSet<LootPool> shopHashSet = shopSet.Values.ToHashSet();
-            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet});
+            HashSet<LootPool> fishHashSet = new(fishSet);
+            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet});
 
             foreach (LootPool pool in allPools) {
                 int[] itemList = pool.randomSet;

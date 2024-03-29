@@ -16,15 +16,17 @@ using System.Linq.Expressions;
 using ReLogic.Content;
 
 using MyExtensions;
+using Terraria.DataStructures;
+using Microsoft.Xna.Framework;
+using Terraria.GameContent.UI;
 
 namespace ItemSwapper
 {	
 	public class ChestSpawn : ModSystem
 	{
 		public static LootSet mySet = new LootSet();
-        public override void OnModLoad() //Where all pools are initialized.
-        {
-            /*Surface*/mySet.AddChestPool(new int[] {0}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
+		public static void ResetSet() {
+			/*Surface*/mySet.AddChestPool(new int[] {0}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
 			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 54}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
 			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
 			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
@@ -60,12 +62,22 @@ namespace ItemSwapper
 			/*Stylish Scissors*/mySet.AddNPCPool(new int[] {354}, new int[] {3352});
 			/*Wizard Hat*/mySet.AddNPCPool(new int[] {45}, new int[] {238});
 
-			/*Shadow Armor*/mySet.AddNPCPool(new int[] {956}, new int[] {6});
+			/*Shadow Armor*/mySet.AddNPCPool(new int[] {6}, new int[] {956});
 			/*Tentacle Spike Corr.*/mySet.AddNPCPool(new int[] {956, 7}, new int[] {5094});
 
 			/*Merchant*/mySet.AddShopPool(17, new int[] {1991, 88});
+			/*Zoologist*/mySet.AddShopPool(633, new int[] {4759, 4672, 4716});
+			/*Dryad*/mySet.AddShopPool(20, new int[] {144});
+			/*Arms Dealer*/mySet.AddShopPool(19, new int[] {95, 98});
+			/*Goblin Tinkerer*/mySet.AddShopPool(105, new int[] {128, 398, 486});
+			/*Witch Doctor*/mySet.AddShopPool(228, new int[] {986});
 
+			/*Any Accessories*/mySet.AddFishPool(new int[] {2423, 3225, 2420, 2290});
 
+		}
+        public override void OnModLoad() //Where all pools are initialized.
+        {
+            ResetSet();
         }
         public override void PostWorldGen() 
 		{
@@ -89,8 +101,7 @@ namespace ItemSwapper
 
 				if (mySet.chestSet.Keys.Contains(chestKey) && mySet.chestSet[chestKey].IsEnabled) {
 					int oldItem = chest.item[0].type;
-					//int newItem = mySet.chestSet[chestKey].GetNext();
-					int newItem = 960;
+					int newItem = mySet.chestSet[chestKey].GetNext();
 					Console.WriteLine($"COMPATIBLE CHEST {chestKey}: {chest.item[0].AffixName()}");
 
 					int[] oldItemSet = ItemReference.GetItemSet(oldItem);
@@ -114,13 +125,14 @@ namespace ItemSwapper
         {
             tag[nameof(mySet)] = mySet;
 			mySet = new LootSet();
+			ResetSet();
         }
         public override void LoadWorldData(TagCompound tag)
         {
             mySet = tag.Get<LootSet>(nameof(mySet));
         }
     }
-}
+
 	public class EnemyLoot : GlobalNPC {
 
     public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
@@ -131,7 +143,7 @@ namespace ItemSwapper
 		if (test.Length != 0)
 		{
 			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
-			npcLoot.Add(new LootsetDropRule(npcTypeFormatted));
+			npcLoot.Add(new LootsetDropRule(npcTypeFormatted, 50));
 			Console.WriteLine(npcTypeFormatted);
 		}
     }
@@ -142,31 +154,46 @@ namespace ItemSwapper
 			LootPool pool = mySet.shopSet[npc.type];
 			for (int i = 0; i < items.Length; i++) {
 				Item item = items[i];
+				if (item == null) {
+					break;
+				}
 				if(pool.initialSet.Contains(item.type)) {
+
 					int index = Array.IndexOf(pool.initialSet, item.type);
 					int	newItem = pool.randomSet[index];
 					int[] newItemSet = ItemReference.GetItemSet(newItem, true);
-					var itemSlices = items.SplitArray<Item>(items, i);
+
+					var itemSlices = items.SplitArray(i);
 					var firstSlice = itemSlices.Item1;
-					itemsSlice = ItemReference.OffsetInventory(1, newItemSet.Length, itemsSlice);
+					var secondSlice = ItemReference.OffsetInventory(1, newItemSet.Length, itemSlices.Item2);
+
+					for(int j = 0; j < newItemSet.Length; j++) {
+						secondSlice[j].SetDefaults(newItemSet[j], false);
+					}
+					items = firstSlice.Concat(secondSlice).ToArray();
 				}
-			}
-			Item[] items2 = (from item in items where item != null && pool.initialSet.Contains(item.type) select item).ToArray();
-        	for (int i = 0; i < items2.Length; i++) {
-				items2[i].SetDefaults(pool.randomSet[i]);
 			}
 		}
     }
-    /*
-    public override void OnKill(NPC npc)
-    {
-        LootSet mySet = ChestSpawn.mySet;
-        int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-		foreach (NPCLootPool pool in mySet.GetNPCPools(npcTypeFormatted))
-		{
-            int newItem = pool.GetNext();
-            Item.NewItem(npc.GetSource_Death(), npc.Center, newItem, 1, true);
-		}
-    }*/
+}
+	public class FishLoot : ModPlayer {
+        public override void CatchFish(FishingAttempt attempt, ref int itemDrop, ref int npcSpawn, ref AdvancedPopupRequest sonar, ref Vector2 sonarPosition)
+        {
+			LootSet mySet = ChestSpawn.mySet;
+			LootPool pool = mySet.GetFishPool(itemDrop);
+			if (pool != null) {
+				int newItem = pool.GetNext();
 
+				itemDrop = newItem;
+				Item itemRef = new Item();
+				itemRef.SetDefaults(newItem);
+
+				sonar.Text = itemRef.Name;
+				sonar.Color = ItemRarity.GetColor(itemRef.rare);
+				sonar.DurationInFrames = 360;
+				sonar.Velocity = new Vector2(0, -7f);
+			}
+			
+        }
+    }
 }
