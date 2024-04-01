@@ -27,7 +27,7 @@ namespace ItemSwapper
 		public static LootSet mySet = new LootSet();
 		public static void ResetSet() {
 			/*Surface*/mySet.AddChestPool(new int[] {0}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
-			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 54}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
+			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 56}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
 			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
 			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
 			/*Sky*/mySet.AddChestPool(new int[] {13}, new int[] {159, 65, 158, 2219});
@@ -72,7 +72,11 @@ namespace ItemSwapper
 			/*Goblin Tinkerer*/mySet.AddShopPool(105, new int[] {128, 398, 486});
 			/*Witch Doctor*/mySet.AddShopPool(228, new int[] {986});
 
-			/*Any Accessories*/mySet.AddFishPool(new int[] {2423, 3225, 2420, 2290});
+			/*Any Accessories*/mySet.AddFishPool(new int[] {2423, 3225, 2420});
+			/*Blood Moon*/mySet.AddFishPool(new int[] {4382});
+			/*Rockfish*/mySet.AddFishPool(new int[] {2320});
+			/*Demon Conch*/mySet.AddFishPool(new int[] {4819});
+			/*Ocean*/mySet.AddFishPool(new int[] {2332, 2341, 2342});
 
 		}
         public override void OnModLoad() //Where all pools are initialized.
