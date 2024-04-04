@@ -277,7 +277,6 @@ c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\FNA.dll
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\Hjson.dll
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\Humanizer.dll
-c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\Ionic.Zip.Reduced.dll
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\log4net.dll
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\Microsoft.Bcl.AsyncInterfaces.dll
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\Microsoft.Build.Locator.dll
@@ -404,3 +403,4 @@ c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\obj
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\obj\Debug\net6.0\refint\ItemSwapper.dll
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\obj\Debug\net6.0\ItemSwapper.pdb
 c:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\obj\Debug\net6.0\ref\ItemSwapper.dll
+C:\Users\despe\Documents\My Games\Terraria\tModLoader\ModSources\ItemSwapper\bin\Debug\net6.0\DotNetZip.dll
