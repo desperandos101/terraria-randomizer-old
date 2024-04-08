@@ -26,7 +26,7 @@ namespace ItemSwapper
 	{
 		public static LootSet mySet = new LootSet();
 		public static void ResetSet() {
-			/*Surface*/mySet.AddChestPool(new int[] {0}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
+			/*Surface*/mySet.AddChestPool(new int[] {0, ItemID.WoodenCrate, ItemID.WoodenCrateHard}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
 			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 56}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
 			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
 			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
@@ -77,6 +77,8 @@ namespace ItemSwapper
 			/*Rockfish*/mySet.AddFishPool(new int[] {2320});
 			/*Demon Conch*/mySet.AddFishPool(new int[] {4819});
 			/*Ocean*/mySet.AddFishPool(new int[] {2332, 2341, 2342});
+
+			/*Wood/Iron Crate*/mySet.AddCratePool(new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle, ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade});
 
 		}
         public override void OnModLoad() //Where all pools are initialized.
@@ -145,7 +147,8 @@ namespace ItemSwapper
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
 		NPCLootPool[] test = mySet.GetNPCPools(npcTypeFormatted);
 		if (test.Length != 0)
-		{
+		{	
+			List<IItemDropRule> shitlist = npcLoot.Get();
 			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
 			npcLoot.Add(new LootsetDropRule(npcTypeFormatted, 50));
 			Console.WriteLine(npcTypeFormatted);
@@ -156,7 +159,7 @@ namespace ItemSwapper
 		LootSet mySet = ChestSpawn.mySet;
 		if (mySet.shopSet.ContainsKey(npc.type) && mySet.shopSet[npc.type].IsEnabled) {
 			LootPool pool = mySet.shopSet[npc.type];
-			for (int i = 0; i < items.Length; i++) {
+			for (int i = 0; i < items.Length; i++) { //TODO: appeal to salanto
 				Item item = items[i];
 				if (item == null) {
 					break;
@@ -199,5 +202,5 @@ namespace ItemSwapper
 			}
 			
         }
-    }
+	}
 }

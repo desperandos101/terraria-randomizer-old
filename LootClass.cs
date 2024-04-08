@@ -23,6 +23,7 @@ namespace LootClass { //LOOK MABABA
         public HashSet<NPCLootPool> npcSet = new HashSet<NPCLootPool>();
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
         public HashSet<LootPool> fishSet = new HashSet<LootPool>();
+        public Dictionary<int, LootPool> crateSet = new Dictionary<int, LootPool>();
         public TagCompound SerializeData()
         {
             return new TagCompound 
@@ -34,6 +35,8 @@ namespace LootClass { //LOOK MABABA
                 ["shopSetKeys"] = shopSet.Keys.ToList(),
                 ["shopSetValues"] = shopSet.Values.ToList(),
                 ["fishSet"] = fishSet.ToList(),
+                ["crateSetKeys"] = crateSet.Keys.ToList(),
+                ["crateSetValues"] = crateSet.Values.ToList(),
             };
         }
 
@@ -55,6 +58,12 @@ namespace LootClass { //LOOK MABABA
                 lootset.shopSet[shopKeys[i]] = shopValues[i];
             }
             lootset.fishSet = tag.Get<List<LootPool>>("fishSet").ToHashSet();
+            List<int> crateKeys = tag.Get<List<int>>("crateSetKeys");
+            List<LootPool> crateValues = tag.Get<List<LootPool>>("crateSetValues");
+            for (int i = 0; i < crateKeys.Count; i++)
+            {
+                lootset.chestSet[crateKeys[i]] = crateValues[i];
+            }
             return lootset;
         }
 
@@ -75,10 +84,18 @@ namespace LootClass { //LOOK MABABA
             shopSet[npcID] = newPool;
             totalPool.AddRange(itemList);
         }
-        public void AddFishPool(int[] itemIDs) {
-            LootPool newPool = new(itemIDs);
+        public void AddFishPool(int[] itemList) {
+            LootPool newPool = new(itemList);
             fishSet.Add(newPool);
-            totalPool.AddRange(itemIDs);
+            totalPool.AddRange(itemList);
+        }
+        public void AddCratePool(int[] crateIDs, int[] itemList) {
+            LootPool newPool = new(itemList);
+            foreach (int crateID in crateIDs) {
+                crateSet[crateID] = newPool;
+            }
+            totalPool.AddRange(itemList);
+
         }
         public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
         public LootPool GetFishPool(int itemID) {
