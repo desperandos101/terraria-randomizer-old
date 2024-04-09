@@ -22,7 +22,7 @@ namespace CrateDrop {
             if (item.type == 2334) { //This block replaces unique crate items, like the sailfish boots.
                 List<IItemDropRule> test = itemLoot.Get();
                 itemLoot.Remove(test[0]); //hardcoding. crate specific accessories are always indexed 0
-                itemLoot.Add(ItemDropRule.AlwaysAtleastOneSuccess(CrateReference.woodenCrateDrop(new LootsetDropRule(20, true), new LootsetDropRule(20, true, 0))));
+                itemLoot.Add(ItemDropRule.AlwaysAtleastOneSuccess(CrateReference.woodenCrateDrop(new LootsetDropRule(20), new LootsetDropRule(20, isBiomeCrate:true))));
             }
         }
     }

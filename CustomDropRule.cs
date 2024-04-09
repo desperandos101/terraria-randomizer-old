@@ -20,34 +20,23 @@ namespace CustomDropRule {
 
     public class LootsetDropRule : IItemDropRule {
         public int denominator;
-        public int chestIDforBiomeCrates = -1;
-        public bool crate;
         public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
-        public LootsetDropRule(int myDenominator, bool isCrate = false, int chestID = -1) {
+        public bool biomeCrate;
+        public int ID(DropAttemptInfo info) => info.npc.type == 0 ? info.item : info.npc.type;
+        public LootPool[] Pools(int ID) => biomeCrate ? new LootPool[] {ChestSpawn.mySet.chestSet[ID]} : ChestSpawn.mySet.GetNPCPools(ID);
+        public LootsetDropRule(int myDenominator, bool isBiomeCrate = false) {
+            
             ChainedRules = new List<IItemDropRuleChainAttempt>();
+            biomeCrate = isBiomeCrate;
             denominator = myDenominator;
-            chestIDforBiomeCrates = chestID;
-            crate = isCrate;
         }
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             ItemDropAttemptResult result;
             if (info.player.RollLuck(denominator) < 1) {
-                LootSet mySet = ChestSpawn.mySet;
+                LootPool[] pools = Pools(ID(info));
                 List<int> options = new List<int>();
-                if (chestIDforBiomeCrates > -1) {
-                    LootPool myPool = mySet.chestSet[chestIDforBiomeCrates];
-                    options = myPool.GetSet().ToList();
-                } else {
-                    int ID;
-                    if (crate) {
-                        ID = info.item;
-                    } else {
-                        ID = ItemReference.IDNPC(info.npc.type);
-                    }
-                    NPCLootPool[] myPools = mySet.GetNPCPools(ID);
-                    foreach (LootPool pool in myPools) {
-                        options = options.Concat(pool.GetSet()).ToList();
-                    }
+                foreach (LootPool pool in pools) {
+                    options = options.Concat(pool.GetSet()).ToList();
                 }
                 
                 int itemId = options[info.rng.Next(options.Count)];

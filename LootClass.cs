@@ -12,13 +12,12 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using static System.Random;
-namespace LootClass { //LOOK MABABA
+namespace LootClass {
     public class LootSet : TagSerializable
     {
         public static readonly Func<TagCompound, LootSet> DESERIALIZER = Load;
 
         static Random rnd = new();
-        public List<int> totalPool = new List<int>();
         public Dictionary<int, LootPool> chestSet = new Dictionary<int, LootPool>();
         public HashSet<NPCLootPool> npcSet = new HashSet<NPCLootPool>();
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
@@ -27,7 +26,6 @@ namespace LootClass { //LOOK MABABA
         {
             return new TagCompound 
             {
-                ["totalPool"] = totalPool,
                 ["chestSetKeys"] = chestSet.Keys.ToList(),
                 ["chestSetValues"] = chestSet.Values.ToList(),
                 ["npcSet"] = npcSet.ToList(),
@@ -40,7 +38,6 @@ namespace LootClass { //LOOK MABABA
         public static LootSet Load(TagCompound tag)
         {
             var lootset = new LootSet();
-            lootset.totalPool = tag.Get<List<int>>("totalPool");
             List<int> chestKeys = tag.Get<List<int>>("chestSetKeys");
             List<LootPool> chestValues = tag.Get<List<LootPool>>("chestSetValues");
             for (int i = 0; i < chestKeys.Count; i++)
@@ -62,24 +59,28 @@ namespace LootClass { //LOOK MABABA
             foreach (int chestID in chestIDs) {
                 chestSet[chestID] = newPool;
             }
-            totalPool.AddRange(itemList);
         }
         public void AddNPCPool(int[] npcIDs, int[] itemList) {
             NPCLootPool newPool = new(itemList, npcIDs);
             npcSet.Add(newPool);
-            totalPool.AddRange(itemList);
         }
         public void AddShopPool(int npcID, int[] itemList) {
             LootPool newPool = new(itemList);
             shopSet[npcID] = newPool;
-            totalPool.AddRange(itemList);
         }
         public void AddFishPool(int[] itemList) {
             LootPool newPool = new(itemList);
             fishSet.Add(newPool);
-            totalPool.AddRange(itemList);
         }
         public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
+        public int[] GetInitialNPCOptions(int npcID) {
+            LootPool[] pools = GetNPCPools(npcID);
+            List<int> options = new List<int>();
+            foreach (LootPool pool in pools) {
+                options.AddRange(pool.initialSet);
+            }
+            return options.ToArray();
+        }
         public LootPool GetFishPool(int itemID) {
             foreach (LootPool pool in fishSet) {
                 if (pool.initialSet.Contains(itemID)) {
@@ -88,8 +89,8 @@ namespace LootClass { //LOOK MABABA
             }
             return null;
         } 
-        public void Randomize() { //TODO: make it so totalset is synthesized on method call, accounting for IsEnabled
-            List<int> totalPoolCopy = new(totalPool);
+        public void Randomize() {
+            List<int> totalPool = new();
             HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
             HashSet<LootPool> npcHashSet = new(npcSet);
             HashSet<LootPool> shopHashSet = shopSet.Values.ToHashSet();
@@ -97,18 +98,25 @@ namespace LootClass { //LOOK MABABA
             HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet});
 
             foreach (LootPool pool in allPools) {
-                int[] itemList = pool.randomSet;
-                for (int i = 0; i < itemList.Length; i++) {
-                    int randItem = totalPoolCopy[rnd.Next(totalPoolCopy.Count)];
-                    itemList[i] = randItem;
-                    totalPoolCopy.Remove(randItem);
+                if (pool.IsEnabled) {
+                    totalPool.AddRange(pool.initialSet);
                 }
             }
+
+            foreach (LootPool pool in allPools) {
+                int[] itemList = pool.randomSet;
+                for (int i = 0; i < itemList.Length; i++) {
+                    int randItem = totalPool[rnd.Next(totalPool.Count)];
+                    itemList[i] = randItem;
+                    totalPool.Remove(randItem);
+                }
+            }
+
         }
     }
     public class LootPool : TagSerializable {
             public static readonly Func<TagCompound, LootPool> DESERIALIZER = Load;
-            public int counter;
+            protected int counter;
             public readonly int[] initialSet;
             public int[] randomSet;
             public bool IsEnabled = true;

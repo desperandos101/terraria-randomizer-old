@@ -112,7 +112,8 @@ namespace ItemSwapper
 
 				if (mySet.chestSet.Keys.Contains(chestKey) && mySet.chestSet[chestKey].IsEnabled) {
 					int oldItem = chest.item[0].type;
-					int newItem = mySet.chestSet[chestKey].GetNext();
+					//int newItem = mySet.chestSet[chestKey].GetNext();
+					int newItem = 960;
 					Console.WriteLine($"COMPATIBLE CHEST {chestKey}: {chest.item[0].AffixName()}");
 
 					int[] oldItemSet = ItemReference.GetItemSet(oldItem);
@@ -150,10 +151,10 @@ namespace ItemSwapper
     {
         LootSet mySet = ChestSpawn.mySet;
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-		NPCLootPool[] test = mySet.GetNPCPools(npcTypeFormatted);
-		if (test.Length != 0)
+		int[] options = mySet.GetInitialNPCOptions(npcTypeFormatted);
+		if (options.Length != 0)
 		{	
-			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
+			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && options.Contains(normalDropRule.itemId));
 			npcLoot.Add(new LootsetDropRule(50));
 			Console.WriteLine(npcTypeFormatted);
 		}

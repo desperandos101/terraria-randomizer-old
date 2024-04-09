@@ -20,7 +20,7 @@ namespace PreBobbery {
                     }
                 }
                 if (proj.ai[1] > 0f) {
-                    int itemType = 960;
+                    int itemType = (int)proj.ai[1];
                     int[] itemArray = ItemReference.GetItemSet(itemType);
                     foreach(int item in itemArray) {
                         GiveFish(Main.player[proj.owner], item, proj); }
@@ -81,8 +81,8 @@ namespace PreBobbery {
             Item item2 = thePlayer.GetItem(proj.owner, item, default(GetItemSettings));
             if (item2.stack > 0) {
                 int number = Item.NewItem(new EntitySource_OverfullInventory(thePlayer), (int)proj.position.X, (int)proj.position.Y, proj.width, proj.height, itemType, item2.stack, noBroadcast: false, 0, noGrabDelay: true);
-                if (Main.netMode == 1)
-                    NetMessage.SendData(21, -1, -1, null, number, 1f);
+                if (Main.netMode == NetmodeID.MultiplayerClient)
+                    NetMessage.SendData(MessageID.SyncItem, -1, -1, null, number, 1f);
             }
             else {
                 item.position.X = proj.Center.X - (float)(item.width / 2);
