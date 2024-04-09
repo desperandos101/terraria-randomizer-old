@@ -17,62 +17,39 @@ using System.Security.Cryptography;
 using System.IO.Pipelines;
 
 namespace CustomDropRule {
-    public class LootsetCrateRule : IItemDropRule {
-        public int denominator;
-        public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
-        public LootsetCrateRule(int myDenominator) {
-            ChainedRules = new List<IItemDropRuleChainAttempt>();
-            denominator = myDenominator;
-        }
-        public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
-            ItemDropAttemptResult result;
-            if (info.player.RollLuck(denominator) < 1) {
-                int npcIDformatted = ItemReference.IDNPC(info.npc.type);
-                LootSet mySet = ChestSpawn.mySet;
 
-                LootPool myPool = mySet.chestSet[npcIDformatted];
-                int[] options = myPool.randomSet;
-                int itemId = options[info.rng.Next(options.Length)];
-                int[] itemSet = ItemReference.GetItemSet(itemId);
-                foreach (int id in itemSet) {
-                    CommonCode.DropItem(info, id, ItemReference.GetQuant(id));
-                }
-                result = default(ItemDropAttemptResult);
-                result.State = ItemDropAttemptResultState.Success;
-                return result;
-            }
-            result = default(ItemDropAttemptResult);
-            result.State = ItemDropAttemptResultState.FailedRandomRoll;
-            return result;
-        }
-        public bool CanDrop(DropAttemptInfo info) => true;
-        public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
-        {
-            Chains.ReportDroprates(ChainedRules, 1f, drops, ratesInfo);
-        }
-
-    }
     public class LootsetDropRule : IItemDropRule {
-        public int npcID;
         public int denominator;
+        public int chestIDforBiomeCrates = -1;
+        public bool crate;
         public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
-        public LootsetDropRule(int myNPC, int myDenominator) {
-            npcID = myNPC;
+        public LootsetDropRule(int myDenominator, bool isCrate = false, int chestID = -1) {
             ChainedRules = new List<IItemDropRuleChainAttempt>();
             denominator = myDenominator;
+            chestIDforBiomeCrates = chestID;
+            crate = isCrate;
         }
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             ItemDropAttemptResult result;
             if (info.player.RollLuck(denominator) < 1) {
-                int npcIDformatted = ItemReference.IDNPC(info.npc.type);
                 LootSet mySet = ChestSpawn.mySet;
-
                 List<int> options = new List<int>();
-                NPCLootPool[] myPools = mySet.GetNPCPools(npcIDformatted);
-                
-                foreach (LootPool pool in myPools) {
-                    options = options.Concat(pool.randomSet).ToList();
+                if (chestIDforBiomeCrates > -1) {
+                    LootPool myPool = mySet.chestSet[chestIDforBiomeCrates];
+                    options = myPool.GetSet().ToList();
+                } else {
+                    int ID;
+                    if (crate) {
+                        ID = info.item;
+                    } else {
+                        ID = ItemReference.IDNPC(info.npc.type);
+                    }
+                    NPCLootPool[] myPools = mySet.GetNPCPools(ID);
+                    foreach (LootPool pool in myPools) {
+                        options = options.Concat(pool.GetSet()).ToList();
+                    }
                 }
+                
                 int itemId = options[info.rng.Next(options.Count)];
                 int[] itemSet = ItemReference.GetItemSet(itemId);
                 foreach (int id in itemSet) {

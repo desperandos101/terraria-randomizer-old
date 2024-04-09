@@ -78,7 +78,12 @@ namespace ItemSwapper
 			/*Demon Conch*/mySet.AddFishPool(new int[] {4819});
 			/*Ocean*/mySet.AddFishPool(new int[] {2332, 2341, 2342});
 
-			/*Wood/Iron Crate*/mySet.AddCratePool(new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle, ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade});
+			//YES I'M SORRY CRATES ARE BEING REGISTERED UNDER THE NPC POOL
+			//I WANT TO LIIIIIIVE
+			/*Wood Crate Base*/mySet.AddNPCPool(new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle});
+			/*Hardmode Sundial*/mySet.AddNPCPool(new int[] {ItemID.WoodenCrateHard, ItemID.IronCrateHard, ItemID.GoldenCrateHard}, new int[] {ItemID.Sundial});
+			/*Iron Crate*/mySet.AddNPCPool(new int[] {ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade});
+			/*Golden Crate*/mySet.AddNPCPool(new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword});
 
 		}
         public override void OnModLoad() //Where all pools are initialized.
@@ -148,9 +153,8 @@ namespace ItemSwapper
 		NPCLootPool[] test = mySet.GetNPCPools(npcTypeFormatted);
 		if (test.Length != 0)
 		{	
-			List<IItemDropRule> shitlist = npcLoot.Get();
 			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && mySet.totalPool.Contains(normalDropRule.itemId));
-			npcLoot.Add(new LootsetDropRule(npcTypeFormatted, 50));
+			npcLoot.Add(new LootsetDropRule(50));
 			Console.WriteLine(npcTypeFormatted);
 		}
     }
@@ -167,7 +171,8 @@ namespace ItemSwapper
 				if(pool.initialSet.Contains(item.type)) {
 
 					int index = Array.IndexOf(pool.initialSet, item.type);
-					int	newItem = pool.randomSet[index];
+					int[] poolSet = pool.GetSet();
+					int	newItem = poolSet[index];
 					int[] newItemSet = ItemReference.GetItemSet(newItem, true);
 
 					var itemSlices = items.SplitArray(i);

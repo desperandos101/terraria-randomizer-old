@@ -23,7 +23,6 @@ namespace LootClass { //LOOK MABABA
         public HashSet<NPCLootPool> npcSet = new HashSet<NPCLootPool>();
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
         public HashSet<LootPool> fishSet = new HashSet<LootPool>();
-        public Dictionary<int, LootPool> crateSet = new Dictionary<int, LootPool>();
         public TagCompound SerializeData()
         {
             return new TagCompound 
@@ -35,8 +34,6 @@ namespace LootClass { //LOOK MABABA
                 ["shopSetKeys"] = shopSet.Keys.ToList(),
                 ["shopSetValues"] = shopSet.Values.ToList(),
                 ["fishSet"] = fishSet.ToList(),
-                ["crateSetKeys"] = crateSet.Keys.ToList(),
-                ["crateSetValues"] = crateSet.Values.ToList(),
             };
         }
 
@@ -58,15 +55,8 @@ namespace LootClass { //LOOK MABABA
                 lootset.shopSet[shopKeys[i]] = shopValues[i];
             }
             lootset.fishSet = tag.Get<List<LootPool>>("fishSet").ToHashSet();
-            List<int> crateKeys = tag.Get<List<int>>("crateSetKeys");
-            List<LootPool> crateValues = tag.Get<List<LootPool>>("crateSetValues");
-            for (int i = 0; i < crateKeys.Count; i++)
-            {
-                lootset.chestSet[crateKeys[i]] = crateValues[i];
-            }
             return lootset;
         }
-
         public void AddChestPool(int[] chestIDs, int[] itemList) {
             LootPool newPool = new(itemList);
             foreach (int chestID in chestIDs) {
@@ -89,14 +79,6 @@ namespace LootClass { //LOOK MABABA
             fishSet.Add(newPool);
             totalPool.AddRange(itemList);
         }
-        public void AddCratePool(int[] crateIDs, int[] itemList) {
-            LootPool newPool = new(itemList);
-            foreach (int crateID in crateIDs) {
-                crateSet[crateID] = newPool;
-            }
-            totalPool.AddRange(itemList);
-
-        }
         public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
         public LootPool GetFishPool(int itemID) {
             foreach (LootPool pool in fishSet) {
@@ -106,7 +88,7 @@ namespace LootClass { //LOOK MABABA
             }
             return null;
         } 
-        public void Randomize() {
+        public void Randomize() { //TODO: make it so totalset is synthesized on method call, accounting for IsEnabled
             List<int> totalPoolCopy = new(totalPool);
             HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
             HashSet<LootPool> npcHashSet = new(npcSet);
@@ -130,11 +112,12 @@ namespace LootClass { //LOOK MABABA
             public readonly int[] initialSet;
             public int[] randomSet;
             public bool IsEnabled = true;
+            public Random rnd = new Random(); //AAAAAUUUUUUGHHHHH
             public LootPool(int[] itemList) {
                 initialSet = itemList;
                 randomSet = new int[itemList.Length];
             }
-            public int GetNext() {
+            public virtual int GetNext() {
                 int item;
                 if (IsEnabled) {
                     item = randomSet[counter];
@@ -142,6 +125,16 @@ namespace LootClass { //LOOK MABABA
                     item = initialSet[counter];
                 }
                 counter = (counter + 1)%randomSet.Length;
+                return item;
+            }
+            public int[] GetSet() => IsEnabled ? randomSet : initialSet;
+            public virtual int GetRandom() {
+                int item;
+                if (IsEnabled) {
+                    item = randomSet[rnd.Next(randomSet.Length)];
+                } else {
+                    item = initialSet[rnd.Next(initialSet.Length)];
+                }
                 return item;
             }
             public virtual TagCompound SerializeData()
