@@ -14,18 +14,20 @@ using CustomDropRule;
 
 namespace MyOrb {
     public class SwapOrb : GlobalTile {
+        
         public override bool CanDrop(int i, int j, int type)
         {
             if (type == TileID.ShadowOrbs) {
-                return true;
+                return false;
             }
             return true;
         }
-        public override void KillTile(int i, int j, int type, ref bool fail, ref bool effectOnly, ref bool noItem)
+        public override void Drop(int i, int j, int type)
         {
             if (type == TileID.ShadowOrbs) {
-                //Item.NewItem(new EntitySource_TileBreak(i, j), i, j, 0, 0, 960);
-                fail = true;
+                LootSet mySet = ChestSpawn.mySet;
+                LootPool pool = mySet.smashSet[TileID.ShadowOrbs];
+                Item.NewItem(new EntitySource_TileBreak(i, j), i, j, 0, 0, pool.GetNext());
             }
         }
     }

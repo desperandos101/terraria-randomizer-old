@@ -18,7 +18,6 @@ namespace CrateDrop {
         //I had no other option.
         {   
             LootSet mySet = ChestSpawn.mySet;
-            NPCLootPool[] pools = mySet.GetNPCPools(item.type);
             if (item.type == 2334) { //This block replaces unique crate items, like the sailfish boots.
                 List<IItemDropRule> test = itemLoot.Get();
                 itemLoot.Remove(test[0]); //hardcoding. crate specific accessories are always indexed 0

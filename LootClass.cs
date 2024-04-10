@@ -19,19 +19,22 @@ namespace LootClass {
 
         static Random rnd = new();
         public Dictionary<int, LootPool> chestSet = new Dictionary<int, LootPool>();
-        public HashSet<NPCLootPool> npcSet = new HashSet<NPCLootPool>();
+        public HashSet<DropRuleLootPool> dropRuleSet = new HashSet<DropRuleLootPool>();
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
         public HashSet<LootPool> fishSet = new HashSet<LootPool>();
+        public Dictionary<int, LootPool> smashSet = new Dictionary<int, LootPool>();
         public TagCompound SerializeData()
         {
             return new TagCompound 
             {
                 ["chestSetKeys"] = chestSet.Keys.ToList(),
                 ["chestSetValues"] = chestSet.Values.ToList(),
-                ["npcSet"] = npcSet.ToList(),
+                ["dropRuleSet"] = dropRuleSet.ToList(),
                 ["shopSetKeys"] = shopSet.Keys.ToList(),
                 ["shopSetValues"] = shopSet.Values.ToList(),
                 ["fishSet"] = fishSet.ToList(),
+                ["smashSetKeys"] = smashSet.Keys.ToList(),
+                ["smashSetValues"] = smashSet.Values.ToList(),
             };
         }
 
@@ -44,7 +47,7 @@ namespace LootClass {
             {
                 lootset.chestSet[chestKeys[i]] = chestValues[i];
             }
-            lootset.npcSet = tag.Get<List<NPCLootPool>>("npcSet").ToHashSet();
+            lootset.dropRuleSet = tag.Get<List<DropRuleLootPool>>("dropRuleSet").ToHashSet();
             List<int> shopKeys = tag.Get<List<int>>("shopSetKeys");
             List<LootPool> shopValues = tag.Get<List<LootPool>>("shopSetValues");
             for (int i = 0; i < shopKeys.Count; i++)
@@ -52,6 +55,12 @@ namespace LootClass {
                 lootset.shopSet[shopKeys[i]] = shopValues[i];
             }
             lootset.fishSet = tag.Get<List<LootPool>>("fishSet").ToHashSet();
+            List<int> smashKeys = tag.Get<List<int>>("smashSetKeys");
+            List<LootPool> smashValues = tag.Get<List<LootPool>>("smashSetValues");
+            for (int i = 0; i < smashKeys.Count; i++)
+            {
+                lootset.smashSet[chestKeys[i]] = smashValues[i];
+            }
             return lootset;
         }
         public void AddChestPool(int[] chestIDs, int[] itemList) {
@@ -60,9 +69,9 @@ namespace LootClass {
                 chestSet[chestID] = newPool;
             }
         }
-        public void AddNPCPool(int[] npcIDs, int[] itemList) {
-            NPCLootPool newPool = new(itemList, npcIDs);
-            npcSet.Add(newPool);
+        public void AddRulePool(int[] npcIDs, int[] itemList) {
+            DropRuleLootPool newPool = new(itemList, npcIDs);
+            dropRuleSet.Add(newPool);
         }
         public void AddShopPool(int npcID, int[] itemList) {
             LootPool newPool = new(itemList);
@@ -72,9 +81,13 @@ namespace LootClass {
             LootPool newPool = new(itemList);
             fishSet.Add(newPool);
         }
-        public NPCLootPool[] GetNPCPools(int npcID) => (from pool in npcSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
-        public int[] GetInitialNPCOptions(int npcID) {
-            LootPool[] pools = GetNPCPools(npcID);
+        public void AddSmashPool(int smashID, int[] itemList) {
+            LootPool newPool = new(itemList);
+            smashSet[smashID] = newPool;
+        }
+        public DropRuleLootPool[] GetRulePools(int npcID) => (from pool in dropRuleSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
+        public int[] GetInitialRuleOptions(int npcID) {
+            LootPool[] pools = GetRulePools(npcID);
             List<int> options = new List<int>();
             foreach (LootPool pool in pools) {
                 options.AddRange(pool.initialSet);
@@ -92,10 +105,11 @@ namespace LootClass {
         public void Randomize() {
             List<int> totalPool = new();
             HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
-            HashSet<LootPool> npcHashSet = new(npcSet);
+            HashSet<LootPool> npcHashSet = new(dropRuleSet);
             HashSet<LootPool> shopHashSet = shopSet.Values.ToHashSet();
             HashSet<LootPool> fishHashSet = new(fishSet);
-            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet});
+            HashSet<LootPool> smashHashSet = smashSet.Values.ToHashSet();
+            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet, smashHashSet});
 
             foreach (LootPool pool in allPools) {
                 if (pool.IsEnabled) {
@@ -165,11 +179,11 @@ namespace LootClass {
                 return chestPool;
             }
     }
-    public class NPCLootPool : LootPool { //We make a separate class for NPCS because there can be overlaps.
+    public class DropRuleLootPool : LootPool { //We make a separate class for NPCS because there can be overlaps.
     //For example, all zombies drop shackles, and all slimes drop slime staffs. Slimed Zombies can drop both.
-        public static readonly new Func<TagCompound, NPCLootPool> DESERIALIZER = Load;
+        public static readonly new Func<TagCompound, DropRuleLootPool> DESERIALIZER = Load;
         public int[] registeredIDs;
-        public NPCLootPool(int[] itemList, int[] npcIDset) : base(itemList) {
+        public DropRuleLootPool(int[] itemList, int[] npcIDset) : base(itemList) {
             registeredIDs = npcIDset;
         }
         public override TagCompound SerializeData()
@@ -184,9 +198,9 @@ namespace LootClass {
                 };
             }
 
-            public static new NPCLootPool Load(TagCompound tag)
+            public static new DropRuleLootPool Load(TagCompound tag)
             {
-                var npcPool = new NPCLootPool(tag.GetIntArray("initialSet"), tag.GetIntArray("registeredIDs"));
+                var npcPool = new DropRuleLootPool(tag.GetIntArray("initialSet"), tag.GetIntArray("registeredIDs"));
                 npcPool.counter = tag.GetInt("counter");
                 npcPool.randomSet = tag.GetIntArray("randomSet");
                 npcPool.IsEnabled = tag.GetBool("IsEnabled");

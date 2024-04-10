@@ -35,35 +35,35 @@ namespace ItemSwapper
 			/*Water*/mySet.AddChestPool(new int[] {17}, new int[] {186, 187, 277, 4404, 863});
 			/*Desert*/mySet.AddChestPool(new int[] {62, 69}, new int[] {934, 857, 4061, 4062, 4263, 4262, 4056, 4055, 4276});
 
-			/*Bat Bat*/mySet.AddNPCPool(new int[] {49, 634, 51, 60, 150, 93, 137, 151, 121, 152, 158}, new int[] {5097});
-			/*Bezoar*/mySet.AddNPCPool(new int[] {42, 176, 141}, new int[] {887});
-			/*Blood Pool*/mySet.AddNPCPool(new int[] {586, 587}, new int[] {4381, 4325, 4273});
-			/*Bone Sword + Helmets*/mySet.AddNPCPool(new int[] {21}, new int[] {1166, 954, 955});
-			/*Cobalt Armor*/mySet.AddNPCPool(new int[] {42, 43}, new int[] {960});
-			/*Compass*/mySet.AddNPCPool(new int[] {494, 496, 498, 58, 16, 185, 167, 197}, new int[] {393});
-			/*Chain Knife*/mySet.AddNPCPool(new int[] {49}, new int[] {1325});
-			/*Demon Scythe*/mySet.AddNPCPool(new int[] {62, 66}, new int[] {272});
-			/*Depth Meter*/mySet.AddNPCPool(new int[] {494, 496, 498, 49, 51, 150, 93, 634}, new int[] {18});
-			/*Diving Helmet*/mySet.AddNPCPool(new int[] {65}, new int[] {268});
-			/*Exotic Scimitar*/mySet.AddNPCPool(new int[] {207}, new int[] {3349});
-			/*Gladius + Armor*/mySet.AddNPCPool(new int[] {481}, new int[] {4463, 3187});
-			/*Harpoon*/mySet.AddNPCPool(new int[] {111, 26, 29, 27, 28}, new int[] {160});
-			/*Mandible Blade*/mySet.AddNPCPool(new int[] {580, 581}, new int[] {3772});
-			/*Metal Detector*/mySet.AddNPCPool(new int[] {195}, new int[] {3102});
-			/*Mining Set*/mySet.AddNPCPool(new int[] {44}, new int[] {410});
-			/*Money Trough*/mySet.AddNPCPool(new int[] {489, 490, 586, 587}, new int[] {3213});
-			/*Night Vision Helmet*/mySet.AddNPCPool(new int[] {482, 483}, new int[] {3109});
-			/*Obsidian Rose*/mySet.AddNPCPool(new int[] {24}, new int[] {1323});
-			/*Paintball Gun*/mySet.AddNPCPool(new int[] {227}, new int[] {3350});
-			/*Rally*/mySet.AddNPCPool(new int[] {494, 496, 498}, new int[] {3285});
-			/*Shackle, Zombie Arm*/mySet.AddNPCPool(new int[] {3}, new int[] {216, 1304});
-			/*Shark Tooth Necklace*/mySet.AddNPCPool(new int[] {489, 490}, new int[] {3212});
-			/*Slime Staff*/mySet.AddNPCPool(new int[] {-3, 1, -8, -7, -9, -6, 147, 537, -10, 184, 204, 16, -5, -4, 535, 302, 333, 334, 335, 336, 141, 121, 138, 658, 659, 660}, new int[] {1309});
-			/*Stylish Scissors*/mySet.AddNPCPool(new int[] {354}, new int[] {3352});
-			/*Wizard Hat*/mySet.AddNPCPool(new int[] {45}, new int[] {238});
+			/*Bat Bat*/mySet.AddRulePool(new int[] {49, 634, 51, 60, 150, 93, 137, 151, 121, 152, 158}, new int[] {5097});
+			/*Bezoar*/mySet.AddRulePool(new int[] {42, 176, 141}, new int[] {887});
+			/*Blood Pool*/mySet.AddRulePool(new int[] {586, 587}, new int[] {4381, 4325, 4273});
+			/*Bone Sword + Helmets*/mySet.AddRulePool(new int[] {21}, new int[] {1166, 954, 955});
+			/*Cobalt Armor*/mySet.AddRulePool(new int[] {42, 43}, new int[] {960});
+			/*Compass*/mySet.AddRulePool(new int[] {494, 496, 498, 58, 16, 185, 167, 197}, new int[] {393});
+			/*Chain Knife*/mySet.AddRulePool(new int[] {49}, new int[] {1325});
+			/*Demon Scythe*/mySet.AddRulePool(new int[] {62, 66}, new int[] {272});
+			/*Depth Meter*/mySet.AddRulePool(new int[] {494, 496, 498, 49, 51, 150, 93, 634}, new int[] {18});
+			/*Diving Helmet*/mySet.AddRulePool(new int[] {65}, new int[] {268});
+			/*Exotic Scimitar*/mySet.AddRulePool(new int[] {207}, new int[] {3349});
+			/*Gladius + Armor*/mySet.AddRulePool(new int[] {481}, new int[] {4463, 3187});
+			/*Harpoon*/mySet.AddRulePool(new int[] {111, 26, 29, 27, 28}, new int[] {160});
+			/*Mandible Blade*/mySet.AddRulePool(new int[] {580, 581}, new int[] {3772});
+			/*Metal Detector*/mySet.AddRulePool(new int[] {195}, new int[] {3102});
+			/*Mining Set*/mySet.AddRulePool(new int[] {44}, new int[] {410});
+			/*Money Trough*/mySet.AddRulePool(new int[] {489, 490, 586, 587}, new int[] {3213});
+			/*Night Vision Helmet*/mySet.AddRulePool(new int[] {482, 483}, new int[] {3109});
+			/*Obsidian Rose*/mySet.AddRulePool(new int[] {24}, new int[] {1323});
+			/*Paintball Gun*/mySet.AddRulePool(new int[] {227}, new int[] {3350});
+			/*Rally*/mySet.AddRulePool(new int[] {494, 496, 498}, new int[] {3285});
+			/*Shackle, Zombie Arm*/mySet.AddRulePool(new int[] {3}, new int[] {216, 1304});
+			/*Shark Tooth Necklace*/mySet.AddRulePool(new int[] {489, 490}, new int[] {3212});
+			/*Slime Staff*/mySet.AddRulePool(new int[] {-3, 1, -8, -7, -9, -6, 147, 537, -10, 184, 204, 16, -5, -4, 535, 302, 333, 334, 335, 336, 141, 121, 138, 658, 659, 660}, new int[] {1309});
+			/*Stylish Scissors*/mySet.AddRulePool(new int[] {354}, new int[] {3352});
+			/*Wizard Hat*/mySet.AddRulePool(new int[] {45}, new int[] {238});
 
-			/*Shadow Armor*/mySet.AddNPCPool(new int[] {6}, new int[] {956});
-			/*Tentacle Spike Corr.*/mySet.AddNPCPool(new int[] {956, 7}, new int[] {5094});
+			/*Shadow Armor*/mySet.AddRulePool(new int[] {6}, new int[] {956});
+			/*Tentacle Spike Corr.*/mySet.AddRulePool(new int[] {956, 7}, new int[] {5094});
 
 			/*Merchant*/mySet.AddShopPool(17, new int[] {1991, 88});
 			/*Zoologist*/mySet.AddShopPool(633, new int[] {4759, 4672, 4716});
@@ -78,12 +78,12 @@ namespace ItemSwapper
 			/*Demon Conch*/mySet.AddFishPool(new int[] {4819});
 			/*Ocean*/mySet.AddFishPool(new int[] {2332, 2341, 2342});
 
-			//YES I'M SORRY CRATES ARE BEING REGISTERED UNDER THE NPC POOL
-			//I WANT TO LIIIIIIVE
-			/*Wood Crate Base*/mySet.AddNPCPool(new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle});
-			/*Hardmode Sundial*/mySet.AddNPCPool(new int[] {ItemID.WoodenCrateHard, ItemID.IronCrateHard, ItemID.GoldenCrateHard}, new int[] {ItemID.Sundial});
-			/*Iron Crate*/mySet.AddNPCPool(new int[] {ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade});
-			/*Golden Crate*/mySet.AddNPCPool(new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword});
+			/*Wood Crate Base*/mySet.AddRulePool(new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle});
+			/*Hardmode Sundial*/mySet.AddRulePool(new int[] {ItemID.WoodenCrateHard, ItemID.IronCrateHard, ItemID.GoldenCrateHard}, new int[] {ItemID.Sundial});
+			/*Iron Crate*/mySet.AddRulePool(new int[] {ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade});
+			/*Golden Crate*/mySet.AddRulePool(new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword});
+
+			/*Shadow Orb*/mySet.AddSmashPool(TileID.ShadowOrbs, new int[] {ItemID.Musket, ItemID.ShadowOrb, ItemID.Vilethorn, ItemID.BallOHurt, ItemID.BandofStarpower});
 
 		}
         public override void OnModLoad() //Where all pools are initialized.
@@ -151,7 +151,7 @@ namespace ItemSwapper
     {
         LootSet mySet = ChestSpawn.mySet;
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
-		int[] options = mySet.GetInitialNPCOptions(npcTypeFormatted);
+		int[] options = mySet.GetInitialRuleOptions(npcTypeFormatted);
 		if (options.Length != 0)
 		{	
 			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && options.Contains(normalDropRule.itemId));
