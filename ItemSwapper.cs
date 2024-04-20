@@ -7,6 +7,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.Audio;
+using Terraria.GameContent.Achievements;
 
 using LootClass;
 using Terraria.GameContent.ItemDropRules;
@@ -19,6 +21,7 @@ using MyExtensions;
 using Terraria.DataStructures;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.UI;
+using Terraria.GameContent.Bestiary;
 
 namespace ItemSwapper
 {	
@@ -27,7 +30,7 @@ namespace ItemSwapper
 		public static LootSet mySet = new LootSet();
 		public static void ResetSet() {
 			/*Surface*/mySet.AddChestPool(new int[] {0, ItemID.WoodenCrate, ItemID.WoodenCrateHard}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
-			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 56}, new int[] {49, 50, 53, 54, 975, 930, 997, 906, 947});
+			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 56}, new int[] {49, 50, 53, 54, 975, 930, 997, 906});
 			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
 			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
 			/*Sky*/mySet.AddChestPool(new int[] {13}, new int[] {159, 65, 158, 2219});
@@ -84,6 +87,8 @@ namespace ItemSwapper
 			/*Golden Crate*/mySet.AddRulePool(new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword});
 
 			/*Shadow Orb*/mySet.AddSmashPool(TileID.ShadowOrbs, new int[] {ItemID.Musket, ItemID.ShadowOrb, ItemID.Vilethorn, ItemID.BallOHurt, ItemID.BandofStarpower});
+
+			/*Angler*/mySet.AddQuestPool(new int[] {ItemID.FuzzyCarrot, ItemID.AnglerHat, ItemID.HoneyAbsorbantSponge, ItemID.BottomlessHoneyBucket, ItemID.GoldenFishingRod, ItemID.BottomlessBucket, ItemID.SuperAbsorbantSponge, ItemID.GoldenBugNet, ItemID.FishHook, ItemID.FishMinecart, ItemID.SeashellHairpin, ItemID.FishCostumeMask, ItemID.HighTestFishingLine, ItemID.AnglerEarring, ItemID.TackleBox, ItemID.FishermansGuide, ItemID.WeatherRadio, ItemID.Sextant, ItemID.FishingBobber});
 
 		}
         public override void OnModLoad() //Where all pools are initialized.
@@ -189,6 +194,7 @@ namespace ItemSwapper
 		}
     }
 }
+
 	public class FishLoot : ModPlayer {
         public override void CatchFish(FishingAttempt attempt, ref int itemDrop, ref int npcSpawn, ref AdvancedPopupRequest sonar, ref Vector2 sonarPosition)
         {

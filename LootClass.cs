@@ -23,6 +23,7 @@ namespace LootClass {
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
         public HashSet<LootPool> fishSet = new HashSet<LootPool>();
         public Dictionary<int, LootPool> smashSet = new Dictionary<int, LootPool>();
+        public List<LootPool> questSet = new List<LootPool>();
         public TagCompound SerializeData()
         {
             return new TagCompound 
@@ -35,6 +36,7 @@ namespace LootClass {
                 ["fishSet"] = fishSet.ToList(),
                 ["smashSetKeys"] = smashSet.Keys.ToList(),
                 ["smashSetValues"] = smashSet.Values.ToList(),
+                ["questSet"] = questSet,
             };
         }
 
@@ -59,8 +61,9 @@ namespace LootClass {
             List<LootPool> smashValues = tag.Get<List<LootPool>>("smashSetValues");
             for (int i = 0; i < smashKeys.Count; i++)
             {
-                lootset.smashSet[chestKeys[i]] = smashValues[i];
+                lootset.smashSet[smashKeys[i]] = smashValues[i];
             }
+            lootset.questSet = tag.Get<List<LootPool>>("questSet");
             return lootset;
         }
         public void AddChestPool(int[] chestIDs, int[] itemList) {
@@ -84,6 +87,10 @@ namespace LootClass {
         public void AddSmashPool(int smashID, int[] itemList) {
             LootPool newPool = new(itemList);
             smashSet[smashID] = newPool;
+        }
+        public void AddQuestPool(int[] itemList) {
+            LootPool newPool = new(itemList);
+            questSet.Add(newPool);
         }
         public DropRuleLootPool[] GetRulePools(int npcID) => (from pool in dropRuleSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
         public int[] GetInitialRuleOptions(int npcID) {
@@ -109,7 +116,8 @@ namespace LootClass {
             HashSet<LootPool> shopHashSet = shopSet.Values.ToHashSet();
             HashSet<LootPool> fishHashSet = new(fishSet);
             HashSet<LootPool> smashHashSet = smashSet.Values.ToHashSet();
-            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet, smashHashSet});
+            HashSet<LootPool> questHashSet = questSet.ToHashSet();
+            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet, smashHashSet, questHashSet});
 
             foreach (LootPool pool in allPools) {
                 if (pool.IsEnabled) {
@@ -207,4 +215,4 @@ namespace LootClass {
                 return npcPool;
             }
         }
-    }
+}

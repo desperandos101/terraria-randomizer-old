@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks.Sources;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using static System.Random;
@@ -25,7 +26,10 @@ namespace ItemSwapper {
             {954, new int[] {81, 77}},
             {955, new int[] {83, 79}},
             {956, new int[] {957, 958}},
-            {410, new int[] {411}}
+            {410, new int[] {411}},
+            {ItemID.AnglerHat, new int[] {ItemID.AnglerVest, ItemID.AnglerPants}},
+            {ItemID.SeashellHairpin, new int[] {ItemID.MermaidAdornment, ItemID.MermaidTail}},
+            {ItemID.FishCostumeMask, new int[] {ItemID.FishCostumeShirt, ItemID.FishCostumeFinskirt}}
         };
 
         private static readonly Dictionary<int, (int, int)> ItemQuantDict = new Dictionary<int, (int, int)> {
@@ -55,6 +59,13 @@ namespace ItemSwapper {
                 ItemSetsNew = StripSellables(ItemSetsNew);
             }
             return ItemSetsNew;
+        }
+        public static int[] AddExtrasToItemSet(int[] itemSet) {
+            int[] newSet = new int[] {};
+            foreach (int item in itemSet) {
+                newSet = newSet.Concat(GetItemSet(item)).ToArray();
+            }
+            return newSet;
         }
         public static int[] StripSellables(int[] itemSet) => (from item in itemSet where !Sellables.Contains(item) select item).ToArray();
         public static Item[] OffsetInventory(int oldSetLength, int newSetLength, Item[] inventory) {
