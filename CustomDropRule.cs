@@ -22,7 +22,7 @@ namespace CustomDropRule {
         public int denominator;
         public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
         public bool biomeCrate;
-        public int ID(DropAttemptInfo info) => info.npc.type == 0 ? info.item : info.npc.type;
+        public int ID(DropAttemptInfo info) => info.npc is null ? info.item : info.npc.type;
         public LootPool[] Pools(int ID) => biomeCrate ? new LootPool[] {ChestSpawn.mySet.chestSet[ID]} : ChestSpawn.mySet.GetRulePools(ID);
         public LootsetDropRule(int myDenominator, bool isBiomeCrate = false) {
             

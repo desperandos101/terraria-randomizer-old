@@ -14,14 +14,21 @@ using CustomDropRule;
 
 namespace CrateDrop {
     public class ModifyCrates : GlobalItem {
+        private static HashSet<int> mundaneCrateIDs = new HashSet<int>() {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard, ItemID.GoldenCrate, ItemID.GoldenCrateHard};
+        private static HashSet<int> biomeCrateIDs = new HashSet<int>() {ItemID.JungleFishingCrate, ItemID.JungleFishingCrateHard, ItemID.FrozenCrate, ItemID.FrozenCrateHard, ItemID.FloatingIslandFishingCrate, ItemID.FloatingIslandFishingCrateHard, ItemID.OceanCrate, ItemID.OceanCrateHard, ItemID.OasisCrate, ItemID.OasisCrateHard};
         public override void ModifyItemLoot(Item item, ItemLoot itemLoot)
-        //I had no other option.
         {   
-            LootSet mySet = ChestSpawn.mySet;
-            if (item.type == 2334) { //This block replaces unique crate items, like the sailfish boots.
+            if (mundaneCrateIDs.Contains(item.type)) { //This block replaces unique crate items, like the sailfish boots.
                 List<IItemDropRule> test = itemLoot.Get();
-                itemLoot.Remove(test[0]); //hardcoding. crate specific accessories are always indexed 0
-                itemLoot.Add(ItemDropRule.AlwaysAtleastOneSuccess(CrateReference.woodenCrateDrop(new LootsetDropRule(20), new LootsetDropRule(20, isBiomeCrate:true))));
+                if (test[0] is AlwaysAtleastOneSuccessDropRule seqRule) {
+                    seqRule.rules[0] = new LootsetDropRule(1);
+                    if (item.type == ItemID.WoodenCrate || item.type == ItemID.WoodenCrateHard)
+                        seqRule.rules[1] = new LootsetDropRule(1, true);
+                }
+            } else if (biomeCrateIDs.Contains(item.type)) { //This block replaces biome crate items.
+                List<IItemDropRule> test = itemLoot.Get();
+                if (test[0] is AlwaysAtleastOneSuccessDropRule seqRule)
+                    seqRule.rules[0] = new LootsetDropRule(1, true);
             }
         }
     }

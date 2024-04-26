@@ -84,6 +84,10 @@ namespace LootClass {
             LootPool newPool = new(itemList);
             fishSet.Add(newPool);
         }
+        public void AddBiomeCratePool(int[] crateIDs, LootPool pool) {
+            foreach (int crateID in crateIDs)
+                chestSet[crateID] = pool;
+        }
         public void AddSmashPool(int smashID, int[] itemList) {
             LootPool newPool = new(itemList);
             smashSet[smashID] = newPool;

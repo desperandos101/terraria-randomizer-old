@@ -31,12 +31,12 @@ namespace ItemSwapper
 		public static void ResetSet() {
 			/*Surface*/mySet.AddChestPool(new int[] {0, ItemID.WoodenCrate, ItemID.WoodenCrateHard}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
 			/*Underground*/mySet.AddChestPool(new int[] {1, 8, 32, 50, 51, 56}, new int[] {49, 50, 53, 54, 975, 930, 997, 906});
-			/*Ivy*/mySet.AddChestPool(new int[] {10}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
-			/*Ice*/mySet.AddChestPool(new int[] {11}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
-			/*Sky*/mySet.AddChestPool(new int[] {13}, new int[] {159, 65, 158, 2219});
+			/*Ivy*/mySet.AddChestPool(new int[] {10, ItemID.JungleFishingCrate, ItemID.JungleFishingCrateHard}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
+			/*Ice*/mySet.AddChestPool(new int[] {11, ItemID.FrozenCrate, ItemID.FrozenCrateHard}, new int[] {670, 724, 950, 1319, 987, 1579, 669});
+			/*Sky*/mySet.AddChestPool(new int[] {13, ItemID.FloatingIslandFishingCrate, ItemID.FloatingIslandFishingCrateHard}, new int[] {159, 65, 158, 2219});
 			/*Web*/mySet.AddChestPool(new int[] {15}, new int[] {939});
-			/*Water*/mySet.AddChestPool(new int[] {17}, new int[] {186, 187, 277, 4404, 863});
-			/*Desert*/mySet.AddChestPool(new int[] {62, 69}, new int[] {934, 857, 4061, 4062, 4263, 4262, 4056, 4055, 4276});
+			/*Water*/mySet.AddChestPool(new int[] {17, ItemID.OceanCrate, ItemID.OceanCrateHard}, new int[] {186, 187, 277, 4404, 863});
+			/*Desert*/mySet.AddChestPool(new int[] {62, 69, ItemID.OasisCrate, ItemID.OasisCrateHard}, new int[] {934, 857, 4061, 4062, 4263, 4262, 4056, 4055, 4276});
 
 			/*Bat Bat*/mySet.AddRulePool(new int[] {49, 634, 51, 60, 150, 93, 137, 151, 121, 152, 158}, new int[] {5097});
 			/*Bezoar*/mySet.AddRulePool(new int[] {42, 176, 141}, new int[] {887});
@@ -87,9 +87,11 @@ namespace ItemSwapper
 			/*Golden Crate*/mySet.AddRulePool(new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword});
 
 			/*Shadow Orb*/mySet.AddSmashPool(TileID.ShadowOrbs, new int[] {ItemID.Musket, ItemID.ShadowOrb, ItemID.Vilethorn, ItemID.BallOHurt, ItemID.BandofStarpower});
+			/*Corrupt Crate*/mySet.AddBiomeCratePool(new int[] {ItemID.CorruptFishingCrate, ItemID.CorruptFishingCrateHard}, mySet.smashSet[TileID.ShadowOrbs]);
 
-			/*Angler*/mySet.AddQuestPool(new int[] {ItemID.FuzzyCarrot, ItemID.AnglerHat, ItemID.HoneyAbsorbantSponge, ItemID.BottomlessHoneyBucket, ItemID.GoldenFishingRod, ItemID.BottomlessBucket, ItemID.SuperAbsorbantSponge, ItemID.GoldenBugNet, ItemID.FishHook, ItemID.FishMinecart, ItemID.SeashellHairpin, ItemID.FishCostumeMask, ItemID.HighTestFishingLine, ItemID.AnglerEarring, ItemID.TackleBox, ItemID.FishermansGuide, ItemID.WeatherRadio, ItemID.Sextant, ItemID.FishingBobber});
+			/*Angler*/mySet.AddQuestPool(new int[] {ItemID.FuzzyCarrot, ItemID.AnglerHat, ItemID.HoneyAbsorbantSponge, ItemID.BottomlessHoneyBucket, ItemID.GoldenFishingRod, ItemID.BottomlessBucket, ItemID.SuperAbsorbantSponge, ItemID.GoldenBugNet, ItemID.FishHook, ItemID.FishMinecart, ItemID.HighTestFishingLine, ItemID.AnglerEarring, ItemID.TackleBox, ItemID.FishermansGuide, ItemID.WeatherRadio, ItemID.Sextant, ItemID.FishingBobber});
 
+			/*Queen Bee*/mySet.AddRulePool(new int[] {NPCID.QueenBee}, new int[] {ItemID.BeeGun, ItemID.BeeKeeper, ItemID.BeesKnees, ItemID.HoneyComb});
 		}
         public override void OnModLoad() //Where all pools are initialized.
         {
@@ -117,8 +119,7 @@ namespace ItemSwapper
 
 				if (mySet.chestSet.Keys.Contains(chestKey) && mySet.chestSet[chestKey].IsEnabled) {
 					int oldItem = chest.item[0].type;
-					//int newItem = mySet.chestSet[chestKey].GetNext();
-					int newItem = 960;
+					int newItem = mySet.chestSet[chestKey].GetNext();
 					Console.WriteLine($"COMPATIBLE CHEST {chestKey}: {chest.item[0].AffixName()}");
 
 					int[] oldItemSet = ItemReference.GetItemSet(oldItem);
@@ -151,16 +152,21 @@ namespace ItemSwapper
     }
 
 	public class EnemyLoot : GlobalNPC {
-
+	public bool GodComplex(IItemDropRule rule, int[] options) {
+		return (rule is CommonDrop normalDropRule && options.Contains(normalDropRule.itemId)) 
+		|| rule is OneFromOptionsDropRule seqRule && options.Contains(seqRule.dropIds[0]) 
+		|| rule is OneFromOptionsNotScaledWithLuckDropRule seqRule2 && options.Contains(seqRule2.dropIds[0]);
+	}
     public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
     {
         LootSet mySet = ChestSpawn.mySet;
 		int npcTypeFormatted = ItemReference.IDNPC(npc.type);
 		int[] options = mySet.GetInitialRuleOptions(npcTypeFormatted);
-		if (options.Length != 0)
+		if (options.Length != 0 && npc.type == NPCID.QueenBee)
 		{	
-			npcLoot.RemoveWhere(rule => rule is CommonDrop normalDropRule && options.Contains(normalDropRule.itemId));
-			npcLoot.Add(new LootsetDropRule(50));
+			npcLoot.RemoveWhere(rule => GodComplex(rule, options));
+			/*god complex*/npcLoot.RemoveWhere(rule => rule is DropBasedOnExpertMode seqRule && (GodComplex(seqRule.ruleForNormalMode, options) || GodComplex(seqRule.ruleForExpertMode, options)));
+			npcLoot.Add(new LootsetDropRule(1));
 			Console.WriteLine(npcTypeFormatted);
 		}
     }
