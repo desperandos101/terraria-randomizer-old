@@ -1,5 +1,6 @@
 using Humanizer;
 using ItemSwapper;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Xna.Framework;
 using ReLogic.Content;
 using System;
@@ -9,14 +10,15 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks.Sources;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using UtfUnknown.Core.Probers;
 using static System.Random;
 namespace LootClass {
     public class LootSet : TagSerializable
     {
-        public static readonly Func<TagCompound, LootSet> DESERIALIZER = Load;
-
         static Random rnd = new();
         public Dictionary<int, LootPool> chestSet = new Dictionary<int, LootPool>();
         public HashSet<DropRuleLootPool> dropRuleSet = new HashSet<DropRuleLootPool>();
@@ -24,6 +26,163 @@ namespace LootClass {
         public HashSet<LootPool> fishSet = new HashSet<LootPool>();
         public Dictionary<int, LootPool> smashSet = new Dictionary<int, LootPool>();
         public List<LootPool> questSet = new List<LootPool>();
+        #region Add to Pool Methods
+        public void AddChestPool(int theRegion, int[] chestIDs, int[] itemList) {
+            LootPool newPool = new(theRegion, itemList);
+            foreach (int chestID in chestIDs) {
+                chestSet[chestID] = newPool;
+            }
+        }
+        public void AddRulePool(int theRegion, int[] npcIDs, int[] itemList, int dropType = 0) {
+            DropRuleLootPool newPool = new(theRegion, itemList, npcIDs, dropType);
+            dropRuleSet.Add(newPool);
+        }
+        public void AddShopPool(int theRegion, int npcID, int[] itemList) {
+            LootPool newPool = new(theRegion, itemList);
+            shopSet[npcID] = newPool;
+        }
+        public void AddFishPool(int theRegion, int[] itemList) {
+            LootPool newPool = new(theRegion, itemList);
+            fishSet.Add(newPool);
+        }
+        public void AddBiomeCratePool(int[] crateIDs, LootPool pool) {
+            foreach (int crateID in crateIDs)
+                chestSet[crateID] = pool;
+        }
+        public void AddSmashPool(int theRegion, int smashID, int[] itemList) {
+            LootPool newPool = new(theRegion, itemList);
+            smashSet[smashID] = newPool;
+        }
+        public void AddQuestPool(int theRegion, int[] itemList) {
+            LootPool newPool = new(theRegion, itemList);
+            questSet.Add(newPool);
+        }
+        #endregion
+        public DropRuleLootPool[] GetRulePools(int npcID) => (from pool in dropRuleSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
+        public int[] GetInitialRuleOptions(int npcID) {
+            LootPool[] pools = GetRulePools(npcID);
+            List<int> options = new List<int>();
+            foreach (LootPool pool in pools) 
+                foreach(int itemType in pool.initialSet)
+                    options.AddRange(ItemReference.GetItemSet(itemType));
+            
+            return options.ToArray();
+        }
+        public LootPool GetFishPool(int itemID) => fishSet.FirstOrDefault(pool => pool.initialSet.Contains(itemID));
+        public void AddPoolItems(List<int> items, IEnumerable<LootPool> pools) {
+            foreach(LootPool pool in pools)
+                if (pool.IsEnabled)
+                    items.AddRange(pool.initialSet);
+        }
+        public void FillPool(List<int> items, LootPool pool, int length = 0) {
+            if (length == 0)
+                length = pool.initialSet.Length;
+            pool.randomSet = new int[length];
+            for (int i = 0; i < pool.randomSet.Length; i++) {
+                int randItem = items[rnd.Next(items.Count)];
+                pool.randomSet[i] = randItem;
+                items.Remove(randItem);
+            }
+            
+        }
+        public void Randomize() {
+            List<int> totalPool = new();
+            AddPoolItems(totalPool, chestSet.Values.Distinct());
+            AddPoolItems(totalPool, dropRuleSet);
+            AddPoolItems(totalPool, shopSet.Values);
+            AddPoolItems(totalPool, fishSet);
+            AddPoolItems(totalPool, smashSet.Values);
+            AddPoolItems(totalPool, questSet);
+
+            int totalSlots = totalPool.Count();
+
+            foreach (DropRuleLootPool pool in dropRuleSet) {
+                if (pool.dropType == 2) {
+                    FillPool(totalPool, pool, 3);
+                    totalSlots -= 3;
+                } else if (pool.dropType == 1) {
+                    FillPool(totalPool, pool, 2);
+                    totalSlots -= 2;
+                } else {
+                    FillPool(totalPool, pool, 1);
+                    totalSlots -=1;
+                }
+                
+            }
+
+            foreach (LootPool pool in smashSet.Values) {
+                FillPool(totalPool, pool, 3);
+                totalSlots -= 3;
+            }
+            foreach (LootPool pool in shopSet.Values) {
+                FillPool(totalPool, pool);
+                totalSlots -= pool.randomSet.Length;
+            }
+            foreach (LootPool pool in fishSet) {
+                FillPool(totalPool, pool);
+                totalSlots -= pool.randomSet.Length;
+            }
+            foreach (LootPool pool in questSet) {
+                FillPool(totalPool, pool);
+                totalSlots -= pool.randomSet.Length;
+            }
+
+            int chestSlots = totalSlots / chestSet.Values.Count();
+            int chestSlotRemainder = totalSlots % chestSet.Values.Count();
+
+            foreach (LootPool pool in chestSet.Values) {
+                if (chestSlotRemainder > 0) {
+                    FillPool(totalPool, pool, chestSlots + 1);
+                    chestSlotRemainder--;
+                    totalSlots -= chestSlots + 1;
+                } else {
+                    FillPool(totalPool, pool, chestSlots);
+                    totalSlots -= chestSlots;
+                }
+            }
+
+            if (totalSlots != 0) {
+                throw new Exception("We fucked up! Back to the lab again");
+            }
+
+            for (int i = 0; i > 10000; i++)
+                if (GetRulePools(i).Any(p => p.randomSet is null))
+                    throw new Exception("fuck");
+            Console.WriteLine(this);
+
+        }
+        private string GetRandomSetNames(LootPool pool) {
+            string theText = "";
+            foreach (int item in pool.randomSet)
+                theText += $"{Lang.GetItemName(item)}, ";
+            return theText;
+        }
+        public override string ToString()
+        {
+            string theText = "";
+            foreach (int key in chestSet.Keys) {
+                theText += $"CHEST {key}: ";
+                theText += $"{GetRandomSetNames(chestSet[key])}\n";
+            }
+            foreach (DropRuleLootPool pool in dropRuleSet) {
+                theText += $"NPCS ";
+                foreach (int npc in pool.registeredIDs)
+                    theText += $"{Lang.GetNPCName(npc)} ";
+                theText += ": ";
+                theText += $"{GetRandomSetNames(pool)}\n";
+            }
+            foreach (int key in shopSet.Keys) {
+                theText += $"SHOP {Lang.GetNPCName(key)}: ";
+                theText += $"{GetRandomSetNames(shopSet[key])}\n";
+            }
+            foreach (int key in smashSet.Keys) {
+                theText += $"ORB: ";
+                theText += $"{GetRandomSetNames(smashSet[key])}\n";
+            }
+            return theText;
+        }
+        #region TagSerialize Methods
+        public static readonly Func<TagCompound, LootSet> DESERIALIZER = Load;
         public TagCompound SerializeData()
         {
             return new TagCompound 
@@ -39,7 +198,6 @@ namespace LootClass {
                 ["questSet"] = questSet,
             };
         }
-
         public static LootSet Load(TagCompound tag)
         {
             var lootset = new LootSet();
@@ -66,94 +224,21 @@ namespace LootClass {
             lootset.questSet = tag.Get<List<LootPool>>("questSet");
             return lootset;
         }
-        public void AddChestPool(int[] chestIDs, int[] itemList) {
-            LootPool newPool = new(itemList);
-            foreach (int chestID in chestIDs) {
-                chestSet[chestID] = newPool;
-            }
-        }
-        public void AddRulePool(int[] npcIDs, int[] itemList) {
-            DropRuleLootPool newPool = new(itemList, npcIDs);
-            dropRuleSet.Add(newPool);
-        }
-        public void AddShopPool(int npcID, int[] itemList) {
-            LootPool newPool = new(itemList);
-            shopSet[npcID] = newPool;
-        }
-        public void AddFishPool(int[] itemList) {
-            LootPool newPool = new(itemList);
-            fishSet.Add(newPool);
-        }
-        public void AddBiomeCratePool(int[] crateIDs, LootPool pool) {
-            foreach (int crateID in crateIDs)
-                chestSet[crateID] = pool;
-        }
-        public void AddSmashPool(int smashID, int[] itemList) {
-            LootPool newPool = new(itemList);
-            smashSet[smashID] = newPool;
-        }
-        public void AddQuestPool(int[] itemList) {
-            LootPool newPool = new(itemList);
-            questSet.Add(newPool);
-        }
-        public DropRuleLootPool[] GetRulePools(int npcID) => (from pool in dropRuleSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
-        public int[] GetInitialRuleOptions(int npcID) {
-            LootPool[] pools = GetRulePools(npcID);
-            List<int> options = new List<int>();
-            foreach (LootPool pool in pools) {
-                options.AddRange(pool.initialSet);
-            }
-            return options.ToArray();
-        }
-        public LootPool GetFishPool(int itemID) {
-            foreach (LootPool pool in fishSet) {
-                if (pool.initialSet.Contains(itemID)) {
-                    return pool;
-                }
-            }
-            return null;
-        } 
-        public void Randomize() {
-            List<int> totalPool = new();
-            HashSet<LootPool> chestHashSet = chestSet.Values.Distinct().ToHashSet();
-            HashSet<LootPool> npcHashSet = new(dropRuleSet);
-            HashSet<LootPool> shopHashSet = shopSet.Values.ToHashSet();
-            HashSet<LootPool> fishHashSet = new(fishSet);
-            HashSet<LootPool> smashHashSet = smashSet.Values.ToHashSet();
-            HashSet<LootPool> questHashSet = questSet.ToHashSet();
-            HashSet<LootPool> allPools = ItemReference.THE_SETMIXER(new HashSet<LootPool>[] {chestHashSet, npcHashSet, shopHashSet, fishHashSet, smashHashSet, questHashSet});
-
-            foreach (LootPool pool in allPools) {
-                if (pool.IsEnabled) {
-                    totalPool.AddRange(pool.initialSet);
-                }
-            }
-
-            foreach (LootPool pool in allPools) {
-                int[] itemList = pool.randomSet;
-                for (int i = 0; i < itemList.Length; i++) {
-                    int randItem = totalPool[rnd.Next(totalPool.Count)];
-                    itemList[i] = randItem;
-                    totalPool.Remove(randItem);
-                }
-            }
-
-        }
+        #endregion
     }
     public class LootPool : TagSerializable {
-            public static readonly Func<TagCompound, LootPool> DESERIALIZER = Load;
             protected int counter;
             public readonly int[] initialSet;
             public int[] randomSet;
             public bool IsEnabled = true;
-            public Random rnd = new Random(); //AAAAAUUUUUUGHHHHH
-            public LootPool(int[] itemList) {
+            public int region;
+            public LootPool(int theRegion, int[] itemList) {
+                region = theRegion;
                 initialSet = itemList;
-                randomSet = new int[itemList.Length];
             }
             public virtual int GetNext() {
                 int item;
-                if (IsEnabled) {
+                if (IsEnabled && randomSet is not null) {
                     item = randomSet[counter];
                 } else { //if the pool is not enabled, we just default to what is normally there
                     item = initialSet[counter];
@@ -162,15 +247,8 @@ namespace LootClass {
                 return item;
             }
             public int[] GetSet() => IsEnabled ? randomSet : initialSet;
-            public virtual int GetRandom() {
-                int item;
-                if (IsEnabled) {
-                    item = randomSet[rnd.Next(randomSet.Length)];
-                } else {
-                    item = initialSet[rnd.Next(initialSet.Length)];
-                }
-                return item;
-            }
+            #region TagSerialize Methods
+            public static readonly Func<TagCompound, LootPool> DESERIALIZER = Load;
             public virtual TagCompound SerializeData()
             {
                 return new TagCompound
@@ -179,25 +257,30 @@ namespace LootClass {
                     ["initialSet"] = initialSet,
                     ["randomSet"] = randomSet,
                     ["IsEnabled"] = IsEnabled,
+                    ["region"] = region,
                 };
             }
 
             public static LootPool Load(TagCompound tag)
             {
-                var chestPool = new LootPool(tag.Get<int[]>("initialSet"));
+                var chestPool = new LootPool(tag.GetInt("region"), tag.Get<int[]>("initialSet"));
                 chestPool.counter = tag.GetInt("counter");
                 chestPool.randomSet = tag.Get<int[]>("randomSet");
                 chestPool.IsEnabled = tag.GetBool("IsEnabled");
                 return chestPool;
             }
+            #endregion
     }
-    public class DropRuleLootPool : LootPool { //We make a separate class for NPCS because there can be overlaps.
-    //For example, all zombies drop shackles, and all slimes drop slime staffs. Slimed Zombies can drop both.
-        public static readonly new Func<TagCompound, DropRuleLootPool> DESERIALIZER = Load;
+    public class DropRuleLootPool : LootPool { //A more modular LootPool data type that has tags that can be matched to.
+    //This is used for NPC drops, crates and boss bags, since their IDs are unlikely to overlap. 
         public int[] registeredIDs;
-        public DropRuleLootPool(int[] itemList, int[] npcIDset) : base(itemList) {
+        public int dropType;
+        public DropRuleLootPool(int theRegion, int[] itemList, int[] npcIDset, int theType) : base(theRegion, itemList) {
             registeredIDs = npcIDset;
+            dropType = theType;
         }
+        #region TagSeralize Methods
+        public static readonly new Func<TagCompound, DropRuleLootPool> DESERIALIZER = Load;
         public override TagCompound SerializeData()
             {
                 return new TagCompound
@@ -206,17 +289,21 @@ namespace LootClass {
                     ["initialSet"] = initialSet,
                     ["randomSet"] = randomSet,
                     ["IsEnabled"] = IsEnabled,
+                    ["region"] = region,
                     ["registeredIDs"] = registeredIDs,
+                    ["dropType"] = dropType,
                 };
             }
 
-            public static new DropRuleLootPool Load(TagCompound tag)
-            {
-                var npcPool = new DropRuleLootPool(tag.GetIntArray("initialSet"), tag.GetIntArray("registeredIDs"));
-                npcPool.counter = tag.GetInt("counter");
-                npcPool.randomSet = tag.GetIntArray("randomSet");
-                npcPool.IsEnabled = tag.GetBool("IsEnabled");
-                return npcPool;
-            }
+        public static new DropRuleLootPool Load(TagCompound tag)
+        {
+            var npcPool = new DropRuleLootPool(tag.GetInt("region"), tag.GetIntArray("initialSet"), tag.GetIntArray("registeredIDs"), tag.GetInt("dropType"));
+            npcPool.counter = tag.GetInt("counter");
+            npcPool.randomSet = tag.GetIntArray("randomSet");
+            npcPool.IsEnabled = tag.GetBool("IsEnabled");
+            return npcPool;
         }
+        #endregion
+    }
+        
 }

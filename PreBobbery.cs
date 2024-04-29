@@ -77,6 +77,7 @@ namespace PreBobbery {
             PlayerLoader.ModifyCaughtFish(thePlayer, item);
             ItemLoader.CaughtFishStack(item); //THIS IS HOW I KNOW IM DEEP IN SOME SHIT
 
+            item.stack = ItemReference.GetQuant(itemType);
             item.newAndShiny = true;
             Item item2 = thePlayer.GetItem(proj.owner, item, default(GetItemSettings));
             if (item2.stack > 0) {

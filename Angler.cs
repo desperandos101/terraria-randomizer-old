@@ -43,6 +43,7 @@ namespace Angler {
                 foreach (int item in newItemSet) {
                     Item extraItem = new Item();
                     extraItem.SetDefaults(item);
+					extraItem.stack = ItemReference.GetQuant(item);
                     rewardItems.Add(extraItem);
                 }            
             }
