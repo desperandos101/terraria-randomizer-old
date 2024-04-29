@@ -2,6 +2,7 @@ using Humanizer;
 using ItemSwapper;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Xna.Framework;
+using MyExtensions;
 using ReLogic.Content;
 using System;
 using System.Collections.Generic;
@@ -74,17 +75,6 @@ namespace LootClass {
                 if (pool.IsEnabled)
                     items.AddRange(pool.initialSet);
         }
-        public void FillPool(List<int> items, LootPool pool, int length = 0) {
-            if (length == 0)
-                length = pool.initialSet.Length;
-            pool.randomSet = new int[length];
-            for (int i = 0; i < pool.randomSet.Length; i++) {
-                int randItem = items[rnd.Next(items.Count)];
-                pool.randomSet[i] = randItem;
-                items.Remove(randItem);
-            }
-            
-        }
         public void Randomize() {
             List<int> totalPool = new();
             AddPoolItems(totalPool, chestSet.Values.Distinct());
@@ -98,32 +88,32 @@ namespace LootClass {
 
             foreach (DropRuleLootPool pool in dropRuleSet) {
                 if (pool.dropType == 2) {
-                    FillPool(totalPool, pool, 3);
+                    pool.Fill(totalPool, 3);
                     totalSlots -= 3;
                 } else if (pool.dropType == 1) {
-                    FillPool(totalPool, pool, 2);
+                    pool.Fill(totalPool, 2);
                     totalSlots -= 2;
                 } else {
-                    FillPool(totalPool, pool, 1);
+                    pool.Fill(totalPool, 1);
                     totalSlots -=1;
                 }
                 
             }
 
             foreach (LootPool pool in smashSet.Values) {
-                FillPool(totalPool, pool, 3);
+                pool.Fill(totalPool, 3);
                 totalSlots -= 3;
             }
             foreach (LootPool pool in shopSet.Values) {
-                FillPool(totalPool, pool);
+                pool.Fill(totalPool);
                 totalSlots -= pool.randomSet.Length;
             }
             foreach (LootPool pool in fishSet) {
-                FillPool(totalPool, pool);
+                pool.Fill(totalPool);
                 totalSlots -= pool.randomSet.Length;
             }
             foreach (LootPool pool in questSet) {
-                FillPool(totalPool, pool);
+                pool.Fill(totalPool);
                 totalSlots -= pool.randomSet.Length;
             }
 
@@ -132,11 +122,11 @@ namespace LootClass {
 
             foreach (LootPool pool in chestSet.Values) {
                 if (chestSlotRemainder > 0) {
-                    FillPool(totalPool, pool, chestSlots + 1);
+                    pool.Fill(totalPool, chestSlots + 1);
                     chestSlotRemainder--;
                     totalSlots -= chestSlots + 1;
                 } else {
-                    FillPool(totalPool, pool, chestSlots);
+                    pool.Fill(totalPool, chestSlots);
                     totalSlots -= chestSlots;
                 }
             }
@@ -235,6 +225,11 @@ namespace LootClass {
             public LootPool(int theRegion, int[] itemList) {
                 region = theRegion;
                 initialSet = itemList;
+            }
+            public void Fill(List<int> items, int length = 0) {
+                if (length == 0)
+                    length = initialSet.Length;
+                randomSet = items.GetRandomSubset(length, true);
             }
             public virtual int GetNext() {
                 int item;
