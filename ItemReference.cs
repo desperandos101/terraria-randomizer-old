@@ -29,7 +29,9 @@ namespace ItemSwapper {
             {410, new int[] {411}},
             {ItemID.AnglerHat, new int[] {ItemID.AnglerVest, ItemID.AnglerPants}},
             {ItemID.SeashellHairpin, new int[] {ItemID.MermaidAdornment, ItemID.MermaidTail}},
-            {ItemID.FishCostumeMask, new int[] {ItemID.FishCostumeShirt, ItemID.FishCostumeFinskirt}}
+            {ItemID.FishCostumeMask, new int[] {ItemID.FishCostumeShirt, ItemID.FishCostumeFinskirt}},
+            {ItemID.NinjaHood, new int[] {ItemID.NinjaShirt, ItemID.NinjaPants}},
+            {ItemID.GladiatorHelmet, new int[] {ItemID.GladiatorBreastplate, ItemID.GladiatorLeggings}}
         };
 
         private static readonly Dictionary<int, (int, int)> ItemQuantDict = new Dictionary<int, (int, int)> {
@@ -132,13 +134,6 @@ namespace ItemSwapper {
                 }
             }
             return id;
-        }
-        public static HashSet<LootPool> THE_SETMIXER(HashSet<LootPool>[] pools) {
-            HashSet<LootPool> finalSet = new HashSet<LootPool>();
-            foreach (HashSet<LootPool> pool in pools) {
-                finalSet = finalSet.Union(pool).ToHashSet();
-            }
-            return finalSet;
         }
     }
 }
