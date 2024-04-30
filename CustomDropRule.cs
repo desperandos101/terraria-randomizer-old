@@ -24,6 +24,8 @@ namespace CustomDropRule {
         public int denominator;
         public bool biomeCrate;
         public int minDrop;
+        private int[] eowIDs = new int[] {13, 14, 15};
+        private bool isNotEaterSegment(DropAttemptInfo info) => info.npc is null || !eowIDs.Contains(info.npc.type) || info.npc.boss;
         public int[] Options(DropAttemptInfo info) {
             int id = info.npc is null ? info.item : info.npc.type;
             LootPool[] pools = biomeCrate ? new LootPool[] {ChestSpawn.mySet.chestSet[id]} : ChestSpawn.mySet.GetRulePools(ItemReference.IDNPC(id));
@@ -43,7 +45,7 @@ namespace CustomDropRule {
         }
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             ItemDropAttemptResult result;
-            if (info.player.RollLuck(denominator) < 1) {
+            if (info.player.RollLuck(denominator) < 1 && isNotEaterSegment(info)) {
                 int[] options = Options(info);
                 
                 int[] newItemIDs = options.GetRandomSubset(minDrop);

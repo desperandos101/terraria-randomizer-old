@@ -22,6 +22,8 @@ using Terraria.DataStructures;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.UI;
 using Terraria.GameContent.Bestiary;
+using Config;
+using CrateDrop;
 
 namespace ItemSwapper
 {	
@@ -29,7 +31,7 @@ namespace ItemSwapper
 	{
 		public static LootSet mySet = new LootSet();
 		public static void ResetSet() {
-			#region PreSkeletron
+			#region PreHardmode
 			/*Surface*/mySet.AddChestPool(0, new int[] {0, ItemID.WoodenCrate, ItemID.WoodenCrateHard}, new int[] {280, 281, 284, 285, 953, 946, 3068, 3069, 3084, 4341});
 			/*Underground*/mySet.AddChestPool(0, new int[] {1, 8, 32, 50, 51, 56}, new int[] {49, 50, 53, 54, 975, 930, 997, 906});
 			/*Ivy*/mySet.AddChestPool(0, new int[] {10, ItemID.JungleFishingCrate, ItemID.JungleFishingCrateHard}, new int[] {211, 212, 213, 964, 3017, 2292, 753});
@@ -76,27 +78,33 @@ namespace ItemSwapper
 			/*Goblin Tinkerer*/mySet.AddShopPool(0, 105, new int[] {128, 398, 486});
 			/*Witch Doctor*/mySet.AddShopPool(0, 228, new int[] {986});
 			
-			/*Any Accessories*///mySet.AddFishPool(0, new int[] {2423, 3225, 2420});
-			/*Blood Moon*///mySet.AddFishPool(0, new int[] {4382});
-			/*Rockfish*///mySet.AddFishPool(0, new int[] {2320});
-			/*Demon Conch*///mySet.AddFishPool(0, new int[] {4819});
-			/*Ocean*///mySet.AddFishPool(0, new int[] {2332, 2341, 2342});
+			/*Any Accessories*/mySet.AddFishPool(0, new int[] {2423, 3225, 2420});
+			/*Blood Moon*/mySet.AddFishPool(0, new int[] {4382});
+			/*Rockfish*/mySet.AddFishPool(0, new int[] {2320});
+			/*Demon Conch*/mySet.AddFishPool(0, new int[] {4819});
+			/*Ocean*/mySet.AddFishPool(0, new int[] {2332, 2341, 2342});
 
-			/*Wood Crate Base*///mySet.AddRulePool(0, new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle}, 1);
-			/*Hardmode Sundial*///mySet.AddRulePool(2, new int[] {ItemID.WoodenCrateHard, ItemID.IronCrateHard, ItemID.GoldenCrateHard}, new int[] {ItemID.Sundial}, 1);
-			/*Iron Crate*///mySet.AddRulePool(0, new int[] {ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade}, 1);
-			/*Golden Crate*///mySet.AddRulePool(0, new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword}, 1);
+			/*Wood Crate Base*/mySet.AddRulePool(0, new int[] {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.SailfishBoots, ItemID.TsunamiInABottle}, 1);
+			/*Hardmode Sundial*/mySet.AddRulePool(2, new int[] {ItemID.WoodenCrateHard, ItemID.IronCrateHard, ItemID.GoldenCrateHard}, new int[] {ItemID.Sundial}, 1);
+			/*Iron Crate*/mySet.AddRulePool(0, new int[] {ItemID.IronCrate, ItemID.IronCrateHard}, new int[] {ItemID.GingerBeard, ItemID.TartarSauce, ItemID.FalconBlade}, 1);
+			/*Golden Crate*/mySet.AddRulePool(0, new int[] {ItemID.GoldenCrate, ItemID.GoldenCrateHard}, new int[] {ItemID.HardySaddle, ItemID.EnchantedSword}, 1);
 			
 			/*Shadow Orb*/mySet.AddSmashPool(0, TileID.ShadowOrbs, new int[] {ItemID.Musket, ItemID.ShadowOrb, ItemID.Vilethorn, ItemID.BallOHurt, ItemID.BandofStarpower});
-			/*Corrupt Crate*///mySet.AddBiomeCratePool(new int[] {ItemID.CorruptFishingCrate, ItemID.CorruptFishingCrateHard}, mySet.smashSet[TileID.ShadowOrbs]);
+			/*Corrupt Crate*/mySet.AddBiomeCratePool(new int[] {ItemID.CorruptFishingCrate, ItemID.CorruptFishingCrateHard}, mySet.smashSet[TileID.ShadowOrbs]);
+			/*Crimson Crate*/mySet.AddBiomeCratePool(new int[] {ItemID.CrimsonFishingCrate, ItemID.CrimsonFishingCrateHard}, mySet.smashSet[TileID.ShadowOrbs]);
 
-			/*Angler*///mySet.AddQuestPool(0, new int[] {ItemID.FuzzyCarrot, ItemID.AnglerHat, ItemID.HoneyAbsorbantSponge, ItemID.BottomlessHoneyBucket, ItemID.GoldenFishingRod, ItemID.BottomlessBucket, ItemID.SuperAbsorbantSponge, ItemID.GoldenBugNet, ItemID.FishHook, ItemID.FishMinecart, ItemID.HighTestFishingLine, ItemID.AnglerEarring, ItemID.TackleBox, ItemID.FishermansGuide, ItemID.WeatherRadio, ItemID.Sextant, ItemID.FishingBobber});
+			/*Angler*/mySet.AddQuestPool(0, new int[] {ItemID.FuzzyCarrot, ItemID.AnglerHat, ItemID.HoneyAbsorbantSponge, ItemID.BottomlessHoneyBucket, ItemID.GoldenFishingRod, ItemID.BottomlessBucket, ItemID.SuperAbsorbantSponge, ItemID.GoldenBugNet, ItemID.FishHook, ItemID.FishMinecart, ItemID.HighTestFishingLine, ItemID.AnglerEarring, ItemID.TackleBox, ItemID.FishermansGuide, ItemID.WeatherRadio, ItemID.Sextant, ItemID.FishingBobber});
 
 			/*King Slime*/mySet.AddRulePool(0, new int[] {NPCID.KingSlime, ItemID.KingSlimeBossBag}, new int[] {ItemID.SlimySaddle, ItemID.NinjaHood, ItemID.SlimeHook}, 2);
 			/*EoC*/mySet.AddRulePool(0, new int[] {NPCID.EyeofCthulhu, ItemID.EyeOfCthulhuBossBag}, new int[] {}, 2);
-			/*EoW*/mySet.AddRulePool(0, new int[] {NPCID.EaterofWorldsHead, ItemID.EaterOfWorldsBossBag}, new int[] {}, 2);
+			/*EoW*/mySet.AddRulePool(0, new int[] {13, 14, 15, ItemID.EaterOfWorldsBossBag}, new int[] {}, 2);
 			/*Queen Bee*/mySet.AddRulePool(0, new int[] {NPCID.QueenBee, ItemID.QueenBeeBossBag}, new int[] {ItemID.BeeGun, ItemID.BeeKeeper, ItemID.BeesKnees, ItemID.HoneyComb}, 2);
 			#endregion
+			if (ModContent.GetInstance<RandoConfig>().EnableFishing) {
+				mySet.DisablePools(mySet.fishSet);
+				mySet.DisablePools(mySet.questSet);
+				mySet.DisablePools(mySet.dropRuleSet, s => s is DropRuleLootPool pool && ModifyCrates.mundaneCrateIDs.Contains(pool.registeredIDs[0]));
+			}
 		}
         public override void OnModLoad() //Where all pools are initialized.
         {
@@ -104,6 +112,9 @@ namespace ItemSwapper
         }
         public override void PostWorldGen() 
 		{
+			if (WorldGen.crimson) {
+				mySet.smashSet[TileID.ShadowOrbs].initialSet = new int[] {ItemID.TheUndertaker, ItemID.CrimsonHeart, ItemID.PanicNecklace, ItemID.CrimsonRod, ItemID.TheRottedFork}; //THE ONLY REASON INITIALSET CANT BE READONLY FUCK MY LIIIIFE
+			}
 			mySet.Randomize();
 
 			var chestList = from chest in Main.chest
@@ -139,7 +150,6 @@ namespace ItemSwapper
 					
 				}
 			}
-
         }
         public override void SaveWorldData(TagCompound tag)
         {

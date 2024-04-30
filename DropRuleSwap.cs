@@ -14,8 +14,8 @@ using CustomDropRule;
 
 namespace CrateDrop {
     public class ModifyCrates : GlobalItem {
-        private static HashSet<int> mundaneCrateIDs = new HashSet<int>() {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard, ItemID.GoldenCrate, ItemID.GoldenCrateHard};
-        private static HashSet<int> biomeCrateIDs = new HashSet<int>() {ItemID.JungleFishingCrate, ItemID.JungleFishingCrateHard, ItemID.FrozenCrate, ItemID.FrozenCrateHard, ItemID.FloatingIslandFishingCrate, ItemID.FloatingIslandFishingCrateHard, ItemID.OceanCrate, ItemID.OceanCrateHard, ItemID.OasisCrate, ItemID.OasisCrateHard};
+        public static HashSet<int> mundaneCrateIDs = new HashSet<int>() {ItemID.WoodenCrate, ItemID.WoodenCrateHard, ItemID.IronCrate, ItemID.IronCrateHard, ItemID.GoldenCrate, ItemID.GoldenCrateHard};
+        private static HashSet<int> biomeCrateIDs = new HashSet<int>() {ItemID.CorruptFishingCrate, ItemID.CorruptFishingCrateHard, ItemID.CrimsonFishingCrate, ItemID.CrimsonFishingCrateHard, ItemID.JungleFishingCrate, ItemID.JungleFishingCrateHard, ItemID.FrozenCrate, ItemID.FrozenCrateHard, ItemID.FloatingIslandFishingCrate, ItemID.FloatingIslandFishingCrateHard, ItemID.OceanCrate, ItemID.OceanCrateHard, ItemID.OasisCrate, ItemID.OasisCrateHard, ItemID.DungeonFishingCrate, ItemID.DungeonFishingCrateHard, ItemID.HallowedFishingCrate, ItemID.HallowedFishingCrateHard, ItemID.LavaCrate, ItemID.LavaCrateHard};
         public override void ModifyItemLoot(Item item, ItemLoot itemLoot)
         {   
             if (mundaneCrateIDs.Contains(item.type)) { //This block replaces unique crate items, like the sailfish boots.

@@ -21,12 +21,14 @@ namespace LootClass {
     public class LootSet : TagSerializable
     {
         static Random rnd = new();
+        #region Pool Sets
         public Dictionary<int, LootPool> chestSet = new Dictionary<int, LootPool>();
         public HashSet<DropRuleLootPool> dropRuleSet = new HashSet<DropRuleLootPool>();
         public Dictionary<int, LootPool> shopSet = new Dictionary<int, LootPool>();
         public HashSet<LootPool> fishSet = new HashSet<LootPool>();
         public Dictionary<int, LootPool> smashSet = new Dictionary<int, LootPool>();
         public List<LootPool> questSet = new List<LootPool>();
+        #endregion
         #region Add to Pool Methods
         public void AddChestPool(int theRegion, int[] chestIDs, int[] itemList) {
             LootPool newPool = new(theRegion, itemList);
@@ -59,6 +61,7 @@ namespace LootClass {
             questSet.Add(newPool);
         }
         #endregion
+        #region Rule Collection Methods
         public DropRuleLootPool[] GetRulePools(int npcID) => (from pool in dropRuleSet where pool.registeredIDs.Contains(npcID) select pool).ToArray();
         public int[] GetInitialRuleOptions(int npcID) {
             LootPool[] pools = GetRulePools(npcID);
@@ -70,6 +73,15 @@ namespace LootClass {
             return options.ToArray();
         }
         public LootPool GetFishPool(int itemID) => fishSet.FirstOrDefault(pool => pool.initialSet.Contains(itemID));
+        #endregion
+        public void DisablePools(IEnumerable<LootPool> poolSet, Func<LootPool, bool> filter = null) {
+            if (poolSet is Dictionary<int, LootPool> dict)
+                poolSet = dict.Values;
+            foreach (LootPool pool in poolSet)
+                if (filter is null || filter(pool)) {
+                    pool.IsEnabled = false;
+                }
+        }
         public void AddPoolItems(List<int> items, IEnumerable<LootPool> pools) {
             foreach(LootPool pool in pools)
                 if (pool.IsEnabled)
@@ -117,10 +129,11 @@ namespace LootClass {
                 totalSlots -= pool.randomSet.Length;
             }
 
-            int chestSlots = totalSlots / chestSet.Values.Count();
-            int chestSlotRemainder = totalSlots % chestSet.Values.Count();
+            HashSet<LootPool> validChests = (from key in chestSet.Keys where key < 100 select chestSet[key]).ToHashSet(); //pretty dumb exclusion, but this should prevent specifically biome crates from reappearing
+            int chestSlots = totalSlots / validChests.Count();
+            int chestSlotRemainder = totalSlots % validChests.Count();
 
-            foreach (LootPool pool in chestSet.Values) {
+            foreach (LootPool pool in validChests) {
                 if (chestSlotRemainder > 0) {
                     pool.Fill(totalPool, chestSlots + 1);
                     chestSlotRemainder--;
@@ -141,9 +154,9 @@ namespace LootClass {
             Console.WriteLine(this);
 
         }
-        private string GetRandomSetNames(LootPool pool) {
+        private string GetSetNames(LootPool pool) {
             string theText = "";
-            foreach (int item in pool.randomSet)
+            foreach (int item in pool.GetSet())
                 theText += $"{Lang.GetItemName(item)}, ";
             return theText;
         }
@@ -152,22 +165,33 @@ namespace LootClass {
             string theText = "";
             foreach (int key in chestSet.Keys) {
                 theText += $"CHEST {key}: ";
-                theText += $"{GetRandomSetNames(chestSet[key])}\n";
+                theText += $"{GetSetNames(chestSet[key])}\n";
             }
             foreach (DropRuleLootPool pool in dropRuleSet) {
                 theText += $"NPCS ";
                 foreach (int npc in pool.registeredIDs)
                     theText += $"{Lang.GetNPCName(npc)} ";
                 theText += ": ";
-                theText += $"{GetRandomSetNames(pool)}\n";
+                theText += $"{GetSetNames(pool)}\n";
             }
             foreach (int key in shopSet.Keys) {
                 theText += $"SHOP {Lang.GetNPCName(key)}: ";
-                theText += $"{GetRandomSetNames(shopSet[key])}\n";
+                theText += $"{GetSetNames(shopSet[key])}\n";
+            }
+            foreach (LootPool pool in fishSet) {
+                theText += $"FISH ";
+                foreach (int fish in pool.initialSet)
+                    theText += $"{Lang.GetItemName(fish)} ";
+                theText += ": ";
+                theText += $"{GetSetNames(pool)}\n";
             }
             foreach (int key in smashSet.Keys) {
                 theText += $"ORB: ";
-                theText += $"{GetRandomSetNames(smashSet[key])}\n";
+                theText += $"{GetSetNames(smashSet[key])}\n";
+            }
+            foreach (LootPool pool in questSet) {
+                theText += $"QUEST FISH: ";
+                theText += $"{GetSetNames(pool)}\n";
             }
             return theText;
         }
@@ -218,7 +242,7 @@ namespace LootClass {
     }
     public class LootPool : TagSerializable {
             protected int counter;
-            public readonly int[] initialSet;
+            public int[] initialSet;
             public int[] randomSet;
             public bool IsEnabled = true;
             public int region;
@@ -235,10 +259,11 @@ namespace LootClass {
                 int item;
                 if (IsEnabled && randomSet is not null) {
                     item = randomSet[counter];
+                    counter = (counter + 1)%randomSet.Length;
                 } else { //if the pool is not enabled, we just default to what is normally there
                     item = initialSet[counter];
+                    counter = (counter + 1)%initialSet.Length;
                 }
-                counter = (counter + 1)%randomSet.Length;
                 return item;
             }
             public int[] GetSet() => IsEnabled ? randomSet : initialSet;
