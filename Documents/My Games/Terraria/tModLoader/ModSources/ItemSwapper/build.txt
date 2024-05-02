@@ -1,3 +1,0 @@
-displayName = ItemSwapper
-author = desp
-version = 0.1
