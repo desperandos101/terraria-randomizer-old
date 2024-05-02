@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "9RIoEr56D4JK1+baA8m9dvuQGflZthii4fQDQFxoMa7acDCbC8WOCtKNLTqX7EWjGvvfu7mVIk+amYmoL47dgA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Vasili\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\ItemSwapper\\ItemSwapper.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Vasili\\.nuget\\packages\\tmodloader.codeassist\\0.1.5\\tmodloader.codeassist.0.1.5.nupkg.sha512"
+  ],
+  "logs": []
+}

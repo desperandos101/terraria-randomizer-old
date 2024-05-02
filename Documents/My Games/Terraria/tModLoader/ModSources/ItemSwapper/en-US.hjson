@@ -1,0 +1,14 @@
+Mods: {
+	ItemSwapper: {
+		Configs: {
+			RandoConfig: {
+				DisplayName: Rando Config
+
+				EnableFishing: {
+					Label: Funny?
+					Tooltip: ""
+				}
+			}
+		}
+	}
+}
