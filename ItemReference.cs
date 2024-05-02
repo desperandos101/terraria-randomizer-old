@@ -17,7 +17,7 @@ using static System.Random;
 namespace ItemSwapper {
     public static class ItemReference {
         private static Random rnd = new Random();
-
+            public static int[] eowIDs = new int[] {13, 14, 15};
                 private static readonly Dictionary<int, int[]> ItemSetDict = new Dictionary<int, int[]> {
             {6, new int[] {-11, -12}},
             {930, new int[] {931}},

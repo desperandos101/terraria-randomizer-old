@@ -34,7 +34,7 @@ namespace CrateDrop {
                 int[] options = mySet.GetInitialRuleOptions(item.type); //Skipping the npc format step, we dont have to do this with boss bags
                 if (options.Length != 0) {
                     itemLoot.RemoveWhere(rule => NPCDropRule.CheckRule(rule, options));
-                    itemLoot.Add(new LootsetDropRule(1, false, -1));
+                    itemLoot.Add(new LootsetDropRule(1));
                 }
             }
         }
@@ -56,7 +56,7 @@ namespace CrateDrop {
                 npcLoot.RemoveWhere(rule => rule is DropBasedOnExpertMode seqRule && (CheckRule(seqRule.ruleForNormalMode, itemsToRemove) || CheckRule(seqRule.ruleForExpertMode, itemsToRemove)));
             }
             if (mySet.GetRulePools(npcTypeFormatted).Any())
-                npcLoot.Add(new LootsetDropRule(1));
+                npcLoot.Add(new LootsetDropRule(25));
             
         }
     }

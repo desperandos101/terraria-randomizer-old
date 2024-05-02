@@ -23,12 +23,13 @@ namespace CustomDropRule {
         public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
         public int denominator;
         public bool biomeCrate;
-        public int minDrop;
-        private int[] eowIDs = new int[] {13, 14, 15};
-        private bool isNotEaterSegment(DropAttemptInfo info) => info.npc is null || !eowIDs.Contains(info.npc.type) || info.npc.boss;
-        public int[] Options(DropAttemptInfo info) {
+        private bool isNotEaterSegment(DropAttemptInfo info) => info.npc is null || !ItemReference.eowIDs.Contains(info.npc.type) || info.npc.boss;
+        public LootPool[] Pools(DropAttemptInfo info) {
             int id = info.npc is null ? info.item : info.npc.type;
-            LootPool[] pools = biomeCrate ? new LootPool[] {ChestSpawn.mySet.chestSet[id]} : ChestSpawn.mySet.GetRulePools(ItemReference.IDNPC(id));
+            return biomeCrate ? new LootPool[] {ChestSpawn.mySet.chestSet[id]} : ChestSpawn.mySet.GetRulePools(ItemReference.IDNPC(id));
+        }
+        public int[] Options(DropAttemptInfo info) {
+            LootPool[] pools = Pools(info);
             
             List<int> options = new List<int>();
             foreach (LootPool pool in pools) {
@@ -36,18 +37,19 @@ namespace CustomDropRule {
             }
             return options.ToArray();
         }
-        public LootsetDropRule(int myDenominator, bool isBiomeCrate = false, int theMinDrop = 1) {
+        public LootsetDropRule(int myDenominator, bool isBiomeCrate = false) {
             
             ChainedRules = new List<IItemDropRuleChainAttempt>();
             biomeCrate = isBiomeCrate;
             denominator = myDenominator;
-            minDrop = theMinDrop;
         }
         public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
             ItemDropAttemptResult result;
-            if (info.player.RollLuck(denominator) < 1 && isNotEaterSegment(info)) {
+            if (info.player.RollLuck(denominator) < 1 && isNotEaterSegment(info) || (info.npc is not null && info.npc.boss)) {
                 int[] options = Options(info);
-                
+                int minDrop = 1;
+                if (info.npc is not null && info.npc.boss)
+                    minDrop = 3;
                 int[] newItemIDs = options.GetRandomSubset(minDrop);
                 foreach(int itemID in newItemIDs) {
                     int[] itemSet = ItemReference.GetItemSet(itemID);
@@ -65,7 +67,13 @@ namespace CustomDropRule {
             return result;
             
         }
-        public bool CanDrop(DropAttemptInfo info) => true;
+        public bool CanDrop(DropAttemptInfo info) {
+            if (!isNotEaterSegment(info))
+                return false;
+            if (info.npc is not null && info.IsExpertMode && info.npc.boss)
+                return false;
+            return true;
+        }
         public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
         {
             Chains.ReportDroprates(ChainedRules, 1f, drops, ratesInfo);

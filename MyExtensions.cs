@@ -15,6 +15,12 @@ namespace MyExtensions {
         public static (T[], T[]) SplitArray<T>(this T[] array, int index) =>
         (array.Take(index).ToArray(), array.Skip(index).ToArray());
 
+        public static bool ContainsDuplicates<T>(this IEnumerable<T> theEnum) {
+        HashSet<T> theSet = theEnum.ToHashSet();
+            if (theSet.Count() == theEnum.Count())
+                return false;
+            return true;
+        }
         public static T[] GetRandomSubset<T>(this IEnumerable<T> theEnum, int newArrayCount, bool removeSubsetFromList = false) {
             List<T> oldList = theEnum.ToList();
             if (oldList.Count() <= newArrayCount || newArrayCount == -1)

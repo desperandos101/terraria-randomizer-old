@@ -14,41 +14,24 @@ using CustomDropRule;
 using System.Numerics;
 
 namespace MyOrb {
-    public class StopOrb : GlobalTile {
-        
-        public override bool CanDrop(int i, int j, int type)
-        {
-            if (type == TileID.ShadowOrbs) {
-                return false;
-            }
-            return true;
-        }
-        public override void KillTile(int i, int j, int type, ref bool fail, ref bool effectOnly, ref bool noItem)
-        {
-            if (type == TileID.ShadowOrbs) {
-                CheckOrb.lastOrbX = i;
-                CheckOrb.lastOrbY = j;
-            }
-        }
+    public class EntitySource_TileBreak_Rando : IEntitySource {
+        public string? Context { get; }
     }
-    public class CheckOrb : ModSystem {
-        private static int localOrbCount;
-        public static int lastOrbX;
-        public static int lastOrbY;
-        public override void OnWorldLoad()
+    public class CheckTileDrop : GlobalItem {
+        public override void OnSpawn(Item item, IEntitySource source)
         {
-            localOrbCount = WorldGen.shadowOrbCount;
-        }
-        public override void PostUpdateWorld()
-        {
-            if (localOrbCount != WorldGen.shadowOrbCount) { //goes off whenever a change in orb count is detected
-                localOrbCount = WorldGen.shadowOrbCount;
-                
-                int playerIndex = Player.FindClosest(new Microsoft.Xna.Framework.Vector2(lastOrbX, lastOrbY), 0, 0);
-                LootPool pool = ChestSpawn.mySet.smashSet[TileID.ShadowOrbs];
-                int[] itemSet = ItemReference.GetItemSet(pool.GetNext());
-                foreach (int item in itemSet)
-                    Main.player[playerIndex].QuickSpawnItem(new EntitySource_TileBreak(lastOrbX, lastOrbY), item, ItemReference.GetQuant(item));
+            if (source is EntitySource_TileBreak && item.type == ItemID.MusketBall && item.stack == 100) { //specifically to get rid of musket balls that always drop from shadow orbs
+                item.TurnToAir();
+            } else if (source is EntitySource_TileBreak tileSource) {
+                LootPool pool = ChestSpawn.mySet.GetOrbPool(item.type);
+                if (pool is not null) {
+                    item.TurnToAir();
+                    int[] newItemSet = ItemReference.GetItemSet(pool.GetNext());
+                    Microsoft.Xna.Framework.Vector2 tilePos = new(tileSource.TileCoords.X, tileSource.TileCoords.Y);
+                    foreach (int newItem in newItemSet) {
+                        Item.NewItem(new EntitySource_TileBreak_Rando(), tilePos.ToWorldCoordinates(), 0, 0, newItem, ItemReference.GetQuant(newItem));
+                    }
+                }
             }
         }
     }
